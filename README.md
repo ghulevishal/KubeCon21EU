@@ -3,6 +3,9 @@
 ## Programs
 https://events.linuxfoundation.org/kubecon-cloudnativecon-europe/program/schedule/
 
+## Event
+https://kubecon-cloudnativecon-europe.com/login/
+
 ## Ref
 https://qiita.com/sg-matsumoto/items/8194320db32d4d8f7a16
 
