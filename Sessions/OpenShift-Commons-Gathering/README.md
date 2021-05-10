@@ -1,0 +1,1 @@
+The OpenShift Commons Gathering at KubeCon EU will focus on talks from end users with production deployments of OpenShift sharing their use cases and lessons learned. Topics covered during this Gathering include hybrid cloud infrastructure, cloud-native development, and future technologies.
