@@ -1,0 +1,2 @@
+Cluster API Provider AWS (CAPA) is a SIG Cluster Lifecycle project, which is responsible for building the UX for deploying and upgrading Kubernetes clusters by also handling infrastructure provisioning in AWS. It can be utilized to build declarative, replicable, scalable Kubernetes clusters in AWS.
+Learn about the new features in Cluster API (CAPI)/Cluster API Provider AWS (CAPA), the roadmap ahead, and how you can contribute to the project.
