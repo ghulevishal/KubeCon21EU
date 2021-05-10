@@ -1,0 +1,203 @@
+﻿﻿Building and Managing a Centralized ML Platform with Kubeflow at CERN - Ricardo Rocha & Dejan Golubovic, CERN: TXQM-2525 - events@cncf.io
+
+Participant: wordly [W] English (US)
+
+Hello, everyone. Welcome to our talk on building and managing a centralized machine learning platform with kubeflow at CERN, will be talking about some work. We've been doing the last few months and a service that we opened to our users.
+Hello.
+My name is Dan Gilbert.
+I'm a Computing engineer in certain Cloud team.
+My focus is on machine, learning infrastructure, services, with kubernetes.
+And I will present this talk with my colleague Ricardo.
+My name is Ricardo. I'm an engineer also in the stern Cloud team, I focus mostly on containers. Networking and more recently gpus accelerators and also machine learning. And I'm also a member of the technical oversight Committee of the cncf,
+As an end user representative.
+So today we'll give a talk about service at CERN, but just a very quick overview of what CERN is about.
+So certain is the European laboratory for particle physics. The largest particle physics laboratory in the world and we build like a large scientific machines that allow us to do fundamental research.
+The largest we have, is the Large Hadron Collider. You probably heard of it.
+The 27-kilometer perimeter particle accelerator that is 100 meters in the ground and where we accelerate two beams of protons.
+The very close to the speed of light.
+And we make them Collide that very specific points where we build large experiments and you see here, CMS lhcb Atlas and always have an idea of the size, you can see the Geneva airport here on the picture and this is a
+An image of the accelerated itself in the channel and you can see all the magnets that help us beam the bending beam so that it circulates in the accelerator and this is a picture of
+Vectors the CMS detector compact. Muon solenoid.
+It's in a cavern, 40 meters by 40 meters. Also a hundred meters and the ground. And this is where we make the proton, beams Collide this detector, and the others as well.
+Act like gigantic cameras where we take something like 40 million, pictures a second.
+And the result of this is a large amount of data that we need to store and analyze we collect and and store more than 70 petabyte-scale data.
+Every year and this is after a lot of filtering 101 detector like this can generate something like one petabyte-scale data per second.
+So that's why we are constantly looking to new technologies that can help us handle this amount of data.
+so, the main motivation for our service is the expanded usage of machine learning in high energy physics, different groups at CERN work, on various machine, learning projects in order to achieve scientific goals of the Large Hadron Collider
+And we know that setting up and managing machine, learning infrastructure is not an easy task and currently most groups at CERN the manage their own machine learning infrastructure. So we have four main experiments which all Branch to different groups.
+And that means that a lot of people use their own machine learning infrastructure. We want to offer a centralized Place essentially service in order to reduce physicists efforts in infrastructure and to allow more time
+Scientific research.
+One of the main applications of machine learning. It's Aaron is in particle reconstruction.
+So, during proton-proton, collisions short-lived, particles are created in the detectors. For example, Higgs boson, which leaves 10 to the minus 22 seconds and to capture the events of the short-lived particles.
+Measure energy. The positions in the detectors, detectors can be considered as 3D cameras which leaves the opportunity to use convolutional neural networks.
+Besides colossal. Neural networks we can use a graphing, your own networks which are also very good at spatial representation.
+would be to take the output of the detector and let that be an input to the network and the output of the network, would be the ID of the particle. Whether
+It's a Higgs boson or am Yuan or pile for example. And now lots of research is going towards graphql networks. Another application is in detector simulations. So Large Hadron, Collider is getting upgraded.
+It, there will be more even more data in the future and more sophisticated and faster Solutions are needed to support. The upgrade from various perspectives, one of them being simulations.
+So, simulations are performed to so that we can accurately estimate what is going to happen during the runs and the traditional methods are Monte Carlo simulations
+Recently, 3D Guns have started to be more commonly used and they have proved to have a similar performance to state-of-the-art Monte Carlo and they offer 20 thousand times faster, simulation and also with 3D gun
+Data can be simulated on the Fly, which may reduce the need for storing the data.
+So our goal is to set up a platform to support the end-to-end machine, learning life cycles.
+We want to be able to extract data from the detectors, choose far, Courage, the first and operate on that data.
+Then we want fast iteration services, such as notebooks because many users use notebooks daily. At least the notebooks are good, starting point for every machine learning user, then four more computationally expensive jobs. We want to be
+Able to perform distributed training with the tensor flow or by torch. And even we want to bring burnt out to public Cloud when resources are needed. So then after the training, we want to store our models and to
+Performance, scalable serving for, for the trained models.
+Cool.
+So the platform that supports all of our goals is kubeflow, basically, with kubeflow, we are utilizing power of kubernetes, tufin T, manage resources and we also offer users, they're all the desired features.
+The infrastructure part of kubeflow is managed by our Cloud team and our users are physicists and scientists across the entire sir.
+with kubeflow.
+We can offer notebooks pipelines distributed, training, model serving and we can also offer burst into public Cloud when necessary.
+And that means that basically all of our use cases are covered by kubeflow and Ricardo will now discuss our setup and challenges in terms of setting up our kubeflow instance,
+Yes, he'll pick up on the next description from then, and before he does cool demo, I'll just talk about the layout of the infrastructure we are using. So this is a very simplified overview of the Clusters, the, the layout of our clusters.
+We rely on those and entry point load balancer.
+and this allows us to simplify the deployment and for example, to do upgrades by just adding entry points to the bouncer, new clusters on the back end.
+And then there's a Gateway that is our Ingress gateway to the services. The main important bit here is that we have three types of nodes. The first type is virtual gpus, this is something that
+Us to have a large amount of GPU resources, although they are not as performance as having a full GPU. But it allows us to have a much larger amount of resources for things like notebooks for example, and we rely on T for sweet. I'm sharing this
+Then we have the PC PC.
+I pass through not group type.
+And here we it's mostly used for things like pipelines or distributed training, hyperparameters, optimization and also muscle serving where you want to guarantee a certain latency for the model serving.
+We do not do today any kind of faster interconnector and linkerd anything like this. And the last bit we have here is CPU.
+And in this case we have a much larger amount of resources. It's not as interesting if you're doing.
+Deep learning. But actually this platform ended up being used for other purposes as well.
+We're workloads and pipelines, can be useful so you can see that we have something on the order of hundreds of virtual gpus are the tens of full gpus for to the users and our of thousands of
+As CPUs just very quickly, our deployment is based on a kubernetes 118 clusters. Today we use kubeflow one once too and one difference from the standard one one deployment is that we upgraded
+0 to 1 5 and K.
+native 2-0, 15 all the Clusters in. The deployments are managed using a gitops, and we have a one repository, we waited, where we Define all the services and all the environments we support, and it's all managed by Argo City. There is one
+Very good feature here which is our OCD allows us to use customized just for the kubeflow deployment.
+And then for the other components, we rely on the operators for both Castillo and Nvidia GPU, operator departments, and then for Prometheus k- cert-manager. We are relying on Helm charts Upstream, Health Service,
+We one of the key aspects is the Integrations, we do with the internal certain services.
+So the first one is identity of the reservation and authentication and we link this to discern SSO.
+we use which is based on key cloak. So this allows us to have not only the tokens that identify the user but also the mapping of the users to the roles and the groups they belong to.
+And what we do in our clusters is we have dedicated namespaces per user.
+Where people have a default quota that is fixed, and cannot be changed. But also we have additional groups where people can belong to. And this is defined in the certain identity.
+If they belong to these groups and in those groups, they can request additional quota, like more GPS.
+for example. And then the other very important part is the integration with our storage systems.
+As we mentioned, like data is a key aspect of everything we do. So we integrate with 323 Main.
+Storage systems that are interesting. In this case, the first one is we call see vmfs, certainly MF set f s. It is a real read, only distributed here, article caching system for that is mostly used for software distribution.
+The second one is an internal in-house developed system called kiosks, that is holding all the physics data.
+Case the important part is that we need to, we offer both Kerberos and os/2, based access our students very important for things like notebooks and anything that is like browser relented and then the last one is hdfs
+Today and mentioned that. In some cases, people want to do the data preparation using spark. And in this case, we are accessing hdfs, using Kerberos credentials.
+I will just summarize a couple of issues that we run well into while doing this. The first one is that the kubeflow releases were not always very consistent in terms of what supporting what?
+So 1 0 have example, multi-user support for for notebooks but not pipelines and one one brought multi-user pipelines, but actually some of the components were not talking to this new API properly like kale from notebooks.
+This meant that we spent quite a bit of time, Downstream fixing these bits. When we do the upgrade, and this is one of the reasons while we are still in one. One, and we are slowly updating to newer versions as well.
+The second one is actually customize and the way kubeflow is using customized. It's quite complex.
+So, we decided to spend some time, simplifying things, and removing some of the components out of it, especially things like cert-manager, EC o + k-, which are quite chronosphere.
+critical and in the end we deploy them in another way and we only deploy the kubeflow applications using customized and then the last one which is still an ongoing issue, is how to manage the additional packages that people might require
+For both the notebooks and then when for their pipelines as well, and how can they install an ad, this packages easily to their containers?
+So this is something I will mention more later. The last bit I will mention. Before we jump to the demo is how we are doing bursting to the public clouds.
+is very important for us because we cannot get access to a much larger amount of gpus and specially other types of accelerators like TPS or IP, used abused are very
+Ting for our use cases. Also, because they're very cost effective. We tried this using different Technologies over the last three years on the lower level. You tried Federation of you wanted me to, which we also have deployments
+the virtual kubelet, we are not still very experts in SEO but we are experimenting with it but actually for kubeflow the most promising results, and the way we are offering, this is actually to directly
+Pause the other clusters to the could users via their Jupiter environment. So when you get your abductor environment, your notebook environment, you actually get the additional clusters configured and these clusters are configured with the same surname as you sow, so we can do
+Something like using the open policy agent Diwali, Day tool is able to access which which clusters which groups can actually access each cluster and then we do the quota management to same way in those clusters as well.
+This is working quite well this is a simple not so simple picture but it's kind of simple given what is behind but they're keep aspect.
+is that this Jupiter environment we have the cluster configuration and we are able to reuse. The also was took token that he's already have
+Have has by logging into the system at CERN and then but normally they would just submit to the same cluster where kubeflow is running the digital environment and they would submit that the th job that would use
+Piero's on premises.
+And then, once this training is done, we write to out output artifacts to S3 where it can be served from DS3 instance. At CERN, by exposing additional clusters in the environment.
+People can just Source those clusters and then submit the TF jobs to external clusters and this, in this case, it would be good to Google Cloud where we would have potentially thousands of gpus available or
+In the end. Again, the output artifact says we are we tend to S3 and served in the same way as if they would have been trained internally.
+So this is a quite promising and this is what we are offering today.
+Okay. Now we'll go back to our demo example.
+So we remember 3 D guns basically, the main issue with 3D Guns is extensive training time. So for our model, it would take to two point, five days to
+Properly trained.
+And if for example if we want to search hyperparameters or change the model that iteration could last for weeks or even months so this is with one GPU.
+So to create a more scalable solution. Distributed model is created, basically, it's the model is trained using tensorflow strategies, so, for example, we are
+Using in our example, multi worker mirror strategy, which uses different nodes with multiple gpus. And also we have a script with accessing TP, use for the distributed training.
+So TF job and kubeflow. Help us automate this distributed training process.
+We are able to quickly iterate over different training configurations.
+So basically, we are encapsulating, the answer flow distribution and we manage its managing it across kubernetes pots.
+So we are able with the other job to run distributor training, both locally and on a public cloud is regarded as
+Describing and yeah, we gcp we are using 128 preemptible machines for the distributed training, and now we can move to the demo.
+So let me share the screen.
+So now we are going to show our demo here. We can see at MLG rendered CH our service dashboard. Basically, this is a kubeflow dashboard and we can check all the kubeflow
+Sirs.
+So now we're going to show our demo.
+We can see our dashboard here and we can see kubeflow teachers on the left, we have pipelines notebook servers, cut tip and the other features. So we'll go to our notebook which is basically where we have our demo prepared.
+So here we have a couple of demos. We are going to show. The first one is one from the from our examples repo.
+Basically, we created a repository, for onboarding, our users for various kubeflow features.
+We are going to show kale this. This example, shows us how to convert a notebook to a pipeline without writing any
+I'll bite them code. So for that we're using kale deployment panel. And basically, the only thing we need to do is to annotate every
+Every cell so that it converts properly to a pipeline component. In addition, to annotating, we are creating connections between pipeline components, and we can also add the GPU to
+Vic pipeline component.
+So here we can.
+In order to run, we only need to click this button compile and run and we can see our pipeline running.
+So while our pipeline is running, we can check other features which we have in our service. One of them is yours.
+So use is where most users were all users that CERN have their personal directory.
+He's and mounting EOS.
+Really allows us to be able to access broad data. From multiple users. Basically every user can access their own personal folder here and
+We can show up the usage of a GPU with Nvidia SMI.
+So, yeah, we are starting with that.
+The main example, which we have is 3D gun.
+So, here we have our 3D gun training.
+So, we have a different scripts here, one of them is training 3D gun with the CPU and then we train and 3D gone with the GPU here and it's all distributed training though, when it comes to GPS.
+So basically here are what we want to check is strategy. So we see that
+We see that we are using multi, worker mirrored strategy for GPU training.
+so hard was Machining, we are also uploading the train model to a bucket. And we see that code here, that after the model is trained, we are uploading it to our Serna bucket.
+Similarly, for tip use only here, we have a typical strategy for distributed training
+We also in this repository have a Docker file to build our image to run Parts distributor training, but we are not building it here, we won't do that but we'll show RTF job, yeonggil file. So to
+TF drop. Basically we can Define our number of replicas here number of gpus we are using here and then we also we select the image and we also can select if we want
+even the number of e-books and other customizable arguments,
+So now we are going to submit our our 3D 3D gun TF job on a local cluster.
+all you have to do is to do Cube CTL why
+GPU.
+So yeah, this one we are submitting to our local cluster.
+And we can track car.
+If job and we see Artie of job running. So now might be a good time to check if our pipeline has completed. It has so we can see our logs and we can see that our pipeline has
+Lee has completed training to models and we see which model was better.
+And now we're running the distributor training of a 3D gun on a local cluster.
+Additionally, we want to run 3D gun training.
+on a Google cluster. So basically
+Inside the cluster folder users would get information about all available clusters in our service.
+So here we only have a certain and the gcp cluster and all the users have to do to access. The additional clusters is to force these files.
+So gcp setup setup, that is haproxy.
+And now they should be able to.
+They should they are in the Google Cloud cluster.
+So as we can see in the Google Cloud Callister, there are no parts in my personal name space.
+but in this local cluster, we have our, I have a couple of pots here running and some of them completed. So
+What we are going to submit here.
+are treating an example so we can go to.
+Te whare disappear.
+Are gcp. I'm a file. And we are going to submit that.
+P.
+So now we're submitting this TF job to our Google Google cluster.
+Meanwhile we can check if our training on our local cluster has completed.
+Hello, and yes, we can see that it has completed.
+And to check the Google cluster.
+Basically we want to have a watch and yes we can see here that our workers are deployed at nodes which have a, we even hundreds. So in total, we have a
+Twenty eighth notes running and we have a 16 workers where each worker has eight.
+So now our training job is running, actually on a Google cluster and this is what we see here.
+So we can close this now.
+And here we see that our local job just completed. And now as Ricardo was saying after the training, we submit our model to a bucket so here we can see the
+The trend model stored on our buckets.
+So we have a couple of files for each model and then this is all for for one model and for one Epoch.
+So we have our discriminator and Generator for 3D done stored in the bucket.
+And we also have saved model in the format so that it can be used for inference for serving. And also we want to maybe want to check. This is Matrix. Basically,
+This is how we can store a matrix. How we store Matrix about our model after each epoch.
+So, okay.
+now we have a covered the 3D gun. The last thing I like to cover is the inference is the inference or the inference services?
+Services.
+What do you want to do? Here is to submit an inference service.
+And to basically serve a model by only specifying where the model is located. So again, cgroup CTL apply,
+And now we have created our inference service. Actually, it was already it was already there but this is how we can we created when we when we want and then to test our
+We can test it from here and we see that we are getting results.
+and basically as we were discussing we're getting a 3D output for that represents the output of the detector.
+So this is what happens when we do one inference, but we want to do 10 crore requests at the same time so that we can see what happens to the number of
+predictor pods.
+As we can see, they are the number of pots, it is increasing its auto-scaling so that it can support
+Client requests.
+And basically, yeah with this, we have covered our demo.
+So basically during this training, we were able to reduce the execution time from one hour to 30 seconds for one Epoch and for the full training, we managed to get from 60 hours to around 30 minutes.
+So T of job, really helped us speed up the development process and we see that we get almost linear improvement in our performance for our treaty gun model.
+And now regard will offer the closing remarks.
+Yeah so basically I hope this was a nice overview of the service. We are offering and the potential that it has by offering a like a consistent environment where people can do their development but also interact with the services.
+We handle a lot of machine learning learning lifecycle steps from preparation all the way to serving. We managed to centralize the resources that are pretty scarce, such as accelerators, in this case gpus and also we
+We are doing currently the integration with external resources for GPS DP using public clouds.
+There are steps, we are still working on.
+So one of the main ones is to unboard new use cases.
+And from those there's a very interesting one for reinforcement, learning for from the people doing the beam calibration where they want to like, keep the model live and updated life. While the game is running and the
+Second thing I would like to mention is that this needs to be for users to be able to curate their own environments and to add packages to their own environments easily.
+Right now, the only option is to install the packages on the notebook, but that doesn't work well when you're doing a transition to pipelines, for example, or to distribute training.
+So we have some experience using a tool called binder for jupyter. Notebooks and we are looking at integrating this with the computer, kubeflow tutor web app as well.
+And the last one is we are quite involved in the work ongoing, work for flow, improves mention, metadata and artifact management. So it's something that will also keep pushing for in the community.
+So we would like to thank like everyone in the kubeflow community for for the great tooling that and of course, all the kubernetes and cloudnativecon loodse that we rely on as well.

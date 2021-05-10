@@ -1,0 +1,307 @@
+﻿﻿Hacking into Kubernetes Security for Beginners - Ellen Körbes, Tilt & Tabitha Sable, Datadog: NONB-2223 - events@cncf.io
+
+Participant: wordly [W] English (US)
+
+Okay, new day, new project.
+Time to write some code.
+I'm going to connect my local tooling to my development cluster and then it can get started.
+I'm going to do cute cut. Oh, apply my, my usual tooling.
+What's your name? Oh wait.
+What?
+No part part something. So, let's let me do this by hand.
+Fail to create node parts that part's already allocated.
+Okay so someone's playing with my cluster Part II told everyone 3 1 3 3 7 Nats me, don't mess around with it.
+Gosh darn it.
+Okay, who did this?
+Let's see.
+Who's around.
+New day, new project, time to write some code.
+I'm going to connect my local tooling to my development cluster and then it can get started.
+I'm going to do.
+Cute cuddle, apply my my usual tooling.
+What's your?
+Oh wait.
+What?
+No part part something.
+So let's let me do this by hand.
+Fail to create node parts that part's already allocated.
+Okay, so someone's playing with my cluster part. I thought everyone 3137.
+That's me. Don't mess around with it.
+Gosh, darn it.
+Okay, who did this?
+Let's see.
+Who's around.
+Okay, there's a lot of people here.
+What are they doing?
+I don't know.
+I can't look at it.
+Can I look at them one by one?
+No, I can't.
+Okay.
+So maybe there's some security in place here and I can't see what everyone else is doing.
+Okay, you know what, I'm not calling the security people, they are not fun. I'll do this on my own.
+Let me check something out here.
+I remember seeing something funny in the onboarding documents.
+So, I was looking around the docks and I found this Dev data base controller, so the controller creates new database instances, pre-populated with
+Fake data for using dive environments.
+It hangs often you can exact into the Pod, and if it's really wedged, you can restart the process by deleting and recreating the Pod. And someone said something here about fixing our back privileges,
+What are they doing?
+I don't know.
+I can't look at it.
+Can I look at them one by one?
+No, I can't.
+Okay.
+So maybe there's some security in place here and I can't see what everyone else is doing.
+Okay, you know what, I'm not calling the security people, they are not fun.
+I'll do this on my own.
+Let me check something out here.
+I remember seeing something funny in the onboarding documents. So, I was looking around the docks and I found this Dev data base controller, so the controller creates new database instances, pre-populated with
+Take data for using dive environments.
+It hangs often you can exact into the Pod and if it's really wedged, you can restart the process by deleting and recreating the Pod. And someone said something here about fixing our back privileges.
+And our back is that thing where I have some permissions, there's some things I can do in the cluster and there's some things I can't apparently I can't look at what my friends are doing to figure out, who's messing with my stuff.
+but if they sat are back in correctly, which is very easy to do because it's convenient to set it in correctly.
+Then maybe I can use that cascading effect, where I am allow us to do some things.
+I'm not allowed to do others, but through the things, I am allow us to do.
+I can go around and managed to do the things. I'm not allowed to do just in a very roundabout way.
+so let's try that.
+So we're looking at it depth data base controller.
+Let's, let's see if we can find out what can I do? Normally, let's see kubecon.
+off. Can I see?
+I can do whatever I want in my own namespace, but when I try to look at someone else's, so let's see, let's see what Catherine's doing here.
+When I try to look at someone else's name space, the stuff that I can do is very little, almost nothing, let's check something out. So let's look at what's going on again. And I have this Dev environment controller, I should be able to
+Pods in it?
+Yeah, the documentation was, right? So for part C, I get a star which means I can do whatever I want with pods and I can exact into pods as well.
+So let's let's try and make use of that and see what happens.
+Let's see, let me do kubecon.
+Do get pods.
+And here's one. So, let's try and execute something in here.
+So kubecon do execute on that namespace in this pot and give me a
+a shell.
+Okay. I gotta shout inside the controller and that means that I can probably now make use of whatever permissions the controller has.
+So do I have to win here?
+Yes I do. Thank you.
+When you leave tooling around attackers become very happy, and speaking of attackers. So what can I do?
+Let's see what I can do from within this controller.
+Let's say again, what can I do?
+Would you look at that stars stars or Stars?
+Like a great philosopher. Once said we're made of stars but your arm back shouldn't be and oh boy, they were right so I can do whatever I want here, which means I can probably see what my friends are doing.
+Yeah, I can see what everyone's doing now.
+So let me filter through this.
+A lot of people are doing a lot of things. Let's see who's using my gosh.
+Darn part Ingress pointing here, and that's Joey.
+Hi, Joey. I told you to stay out of my territory.
+Yeah, you're getting grounded.
+That's enough Joy.
+So kubecon.
+O edit on Joey's.
+Here we're going to replace Joey using my part with Joey using 420 because I know the kind of stuff Joe likes to do. So get out of here Joey, there you go.
+And now I can probably get out of here and run my stuff, finally.
+And there you go now, everything works.
+And now I tilt it up.
+Vacations working.
+So now I can go write some code and and be productive and Joe is going to have a bad surprise Monday and that's his own fault.
+Well, here's what we might want to do first.
+we want to become cluster admin.
+This could happen by either compromising the cluster and becoming cluster admin or maybe you are a malicious intent.
+Hello.
+This is Tabatha depths that cops and forth.
+Joe, Joey, Joey, Joey calm down, calm down, I'm gonna help you but you got to explain it to me.
+You gotta tell me calmly, what's going on.
+Okay, so you can't get into your Dev environment.
+Well, let me let me have a look. Okay. So
+Another look at your service first, because that's always been a problem.
+Oh, joy.
+For you on Port 3, 1, 3, 3 7.
+It says, here you changed it to 3420.
+Joe is this some kind of joke.
+You didn't change it.
+Oh, oh. Let me check on the dev and controller. Maybe maybe something bad happened to it.
+Nah, Devon of controller looks.
+Okay, Joey I'm gonna I'm gonna put you on hold for a moment. Well I do some more investigation of this.
+I'll be right back if this was changed in and Joey says he didn't change it. I'm gonna have to go and look in our log management system to see if the API server audit logs, can tell me what's going on.
+on. Okay, so I have to First Look for or kubernetes, audit logs and let's do.
+In the namespace. Joseph hard, Ella.
+Okay, there's a lot of logs here so let's let's look at what has been done.
+Inside is namespace.
+Okay, patch that's, that's going to be the ones where things were edited. Let's have a look at. Let's have a look at these.
+Here's one that says, Devon of controller, recently, modified Joey's Ingress. Okay, that's that's interesting. Why would the deaf end of controller hetzner?
+Done that inappropriately.
+Let's see. What has?
+Let's see. Whether anything strange has gone on in the Devin controller.
+Okay, so, here's some, here's some typical Kinds of Kinds of changes.
+Let's see who's doing them by looking at the username. Hmm, a lot of service accounts. And then Alan what is Alan done in the Devin controller recently. Okay, so it looks like for Deaf
+Ellen was allowed to execute a show in the Devin of controller, and then right afterward, the Devon of controller service account, modified Joey's, modified Joey's service. Yeah. That's that's
+Suspicious hero.
+I think you just got yourself in trouble. Okay, better. Get back to Joey and make this right for him.
+Hey Joseph, thank you.
+Thank you so much for holding.
+I've done some investigation and I see a simple Miss configuration.
+I am going to fix that for you and then you should be well on your way.
+How are you doing?
+Hello?
+Yeah, yeah.
+Hey, what's up?
+That's exactly what I was expecting.
+Uh, yeah.
+Hello, Ellen.
+It's you'll recall. I'm director of Dev Secaucus enforcement. I had one of those don't smoke ask you? As part of an ongoing security investigation, do you have a moment for that?
+Yeah.
+I mean I'm in the middle of a game but yeah.
+Sure. What's up? Great.
+Thank you so much for taking the time to meet with me here.
+What can you tell me about kubernetes API server? Audit logs. Really? You need to ask me? Does yeah?
+Yeah, tell me about it.
+Sure, yeah, so all the clocks just like when you do stuff today Pi server logs that stuff.
+All of the activities taken on the API server.
+So like, do you know how one might enable a pi server audit logs?
+Hi, I think it's on by default on the manage stuff, but you see out there, if you're rolling around you you need to label it by yourself, but I don't think they are. I mean once it's enabled like should
+Is leaves the log sitting around on the server.
+Lots of friends of mine would say so but I I would advise you to put them somewhere. Really, where can I send them? If you're doing elastisys? TUF log stash.
+I think here we use datadog so you don't keep them in the cluster because that's the theater and the datadog. Yeah that's that's right. So like what do you think? I can see if I go into datadog and I view our API server, audit logs, sure.
+Yeah, you can see the when resources are created or modified or deleted that that activity.
+Yeah. Like what what kind of resources we talking about here?
+Oh, you know stuff like pods deployments jobs node ports.
+Yeah.
+no yeah, yeah, note ports. So like d, you have any idea where I may have gotten these logs that show you modifying. Joey / Dell has Dev environment to point it Port, 80
+Do, do you think you'd like to take a moment to explain yourself?
+You got to get your act together and then you got to cut out this childish, movie hacker, like garbage Behavior.
+You're supposed to be a professional in this.
+ain't it.
+You got to get it together.
+You know, security people to listen to developers, maybe I would be writing code the past hour, instead of browsing Twitter.
+What is this?
+Look it up, baby.
+Yeah, that was a fun one.
+I wonder.
+What is this exploit that they're talking about here?
+Cve, 112-539, even Rhymes.
+That's cute.
+So apparently the CV is improper input, validation on some versions of kubernetes and causes the API server to consume excessive CPU or memory, possibly crashing.
+Okay. So this is a deal Wes.
+And, you know, if the development cluster would be out of commission for a day, I would get the rest of the day off.
+Are we vulnerable to this?
+Kubecon o version.
+We are 16.1 and what we have your 16.2.
+Yeah, we should be vulnerable.
+Where's the POC?
+All right. This is cool apparently.
+we're dealing with a kubernetes on their ability here and they don't come around very often. But when they do, they can ruin your day. And if they're vulnerable to this, it means the security people in our team haven't been doing their job because they should be syseleven.
+Up to the mailing list, the security, getting the security announcements, they should have patching and upgrading and all that stuff is part of our software lifecycle management. And if they're not doing that,
+then I suppose they're going to need to learn their lesson.
+Yeah, they are. Okay and we have this exploit set up.
+Well, I think it's time to
+sending a billion honks using a flock of 400 flying geese and is this working
+No. Our server does not reply any more time to enjoy my day off.
+Deb seccomp enforcement. This is temp.
+Can can you please? Hold Dev seccomp enforcement.
+Can you please hold?
+Oh my gosh.
+Thank you so much for that.
+Great demo Miss Libby.
+Having a principal engineer, Like You on the staff is a huge inspiration to the entire rest of the engineering division.
+Now for the last part of our monthly all hands, I'm going to give an update about security initiatives.
+See, how do I share my skin can ever?
+can everybody see my screen?
+Unfortunately.
+So I'll write today, I need to talk to you because of some activities of a questionable nature that have been happening in our environment.
+We're going to need to enact certain new security policies company-wide as a safe. Oh why why just now are you say, how long have we been without Security in the company from each other and in
+Aces to protect the company from your childishness and what were you doing the past couple years?
+He's going to talk about three things today, admission control Network policy, and containerd vulnerability scanning in our CI pipeline will start with admission control.
+So, admission control is what you need to be able to enforce policy about what settings are allowed to be put on a pod such as privileged or
+or host name spaces.
+So we're going to be deploying new admission control policies that are in line with the kubernetes project, pods security standards document.
+Their one that's about to be deprecated, right?
+Thank you, Ellen.
+No, the pot security standards document describes best practices for running pods in kubernetes.
+I think you're thinking of PODS security policy, which is a feature that was deprecated in 1.21, but will be
+Taste soon with a new admission controller and that's irrelevant to us anyway, because we're going to be using gatekeeper, but thank you for your concern.
+So getting back to the presentation, the importance of admission control is because our back works at the level of kubernetes objects. Like, can you read or write this pod or service?
+Opinion at all about whether a pod is a harmless web server or a privileged command shell, that exposes all of the nodes data.
+So, to enable that kind of control, we need to have admission controller and admission control, then gives the API server, opinions about what should be allowed, and what shouldn't shouldn't you be doing that?
+Yes, and I'm enforcing my opinions using it in Mission controller.
+Thank you, Ellen. So this will help us to not develop using dangerous pot field teachers. That could help an attacker if they got shipped to prod and it will help to isolate our Dev environments from each other.
+The next thing that I'd like to share about is Network policy as those of you who are involved in our attempted proof-of-concept years ago, no, microsegmentation has been a dream of mine for years
+It was way too hard and are bare metal data center, so now he loves to dream.
+Yeah so in our kubernetes environment we already need to precisely Define which services our services talk to for use by our service Discovery system. So we're going to be adding
+Stop talking.
+I wish you'd stop talking to all of us. Ellen.
+As I was saying, our service Discovery system will be integrated with the network policy engine.
+So most of the work of writing policies will be taken care of for you.
+And after you've added the last few touches, then kubernetes will enforce what can talk to what within the cluster in order to reduce attack surface.
+The last thing that I'd like to share is that we're going to be rolling out, container image vulnerability scanning, as part of our CI pipeline now that we're Web 2.0 scale. Our developers have been struggling to keep up with the over 12
+Painters that are deployed in production.
+So with this scanning, the scanner will run every time. A new container is built by CI and it will send an email to the developer about any findings there.
+We're not going to be blocking deploys right now because of these results, this is only for your information. But if we find that these results are getting worse over time, there may need to be further follow-up.
+So thank you all.
+I want to leave with one last bit of information or perhaps a warning for some of you, we will now carefully audit all logs especially the kubernetes API server audit logs, in order to detect any malicious behavior, or
+Shenanigans that might be occurring.
+So thank you all so much for your time this afternoon.
+We will now carefully. Audit all logs.
+Yeah, Over My Dead Body you are. I don't like working in a panopticon and this is way too much of a dystopian. Athenz auditing anything.
+I'm going to get in there and see what they're trying to do and if they're trying to make you uncomfortable, I'll just take some drastic measures now to do that.
+going to need root access to the development environment server and they talked about admission control but they didn't mention that.
+Is the Plaid yet.
+And if it's not the Plaid, it's not so hard to run. A potted, gives me a root shell so I'm going to try my favorite and condition here and let's see if it works. Let's go back to the feet. This is such a classic and I love this forever.
+Is this going to work?
+No, it doesn't. Okay. What else can I do?
+do? What if I can mount a host path so that I can access stuff that's on the Node from a pod. Would that work? Let's see. I have this script here. Let's try and run it and see if it gets through.
+True. So I'm going to apply
+And denied admission.
+Okay, so can I just something else?
+Mount apart on to the host network is that kind of run and to test this, all I need to do is run any old part and it can be anything, it doesn't matter what it does. So long as I have this option here,
+And yeah, it went through this pot, probably going to crash, but the point is the admission controller.
+didn't catch it. And if I have access to the host Network, I can interact with the host and so far, I don't know what that's going to get me. But let's do some research.
+Aha I found something CV 2021, 5257 containerd e, 1.4 abstract, Unix domain socket. This will do just fine and there's even a nice right up here.
+About ways to use this.
+So this is perfect.
+I'm going to set up my attack and then we're go.
+Okay, we're all set.
+This is going to be a two-stage tag. First, I need to set up a reverse channel so that when my exploit calls home I can pick up the call and second this is what I need to run. What this is going to do is I'm going to interact with the host Network directly
+And because of this containerd E phone or ability, I don't have to talk to kubernetes.
+I can tell containerd e itself to run whatever container I want so this means I can run that hose path. Container that kubernetes wouldn't like me.
+Because even if kubernetes security is set up a hundred percent correctly. If I can exploit a vulnerability in something, that kubernetes is running on top of I can bypass all of kubernetes completely, and then it doesn't matter. I'm in. So let's see
+This works and it's running.
+Is this working?
+Yes, it phoned home.
+Now, final stage,
+Did this work?
+Yes, I'm in.
+Okay.
+Now, let's see what those security folks are up to.
+Oh, right?
+I'm not using vacuum using containerd e, ci/cd LP, s, Cube API server. Let's see what their logging here.
+I'm going to do ci/cd, TL logs here and let's see what they got on me.
+Oh boy, they got everything.
+Look, the test host Nats stuff that I was running it. So here this this will not stand but wait wait a sec. I think I did. I just see something strange.
+What is this?
+This is unfamiliar and I don't like unfamiliar things.
+What is this part?
+It's running on cubes system. I don't remember seeing this on Cube system before. Let's check out. Let's look at the container.
+And oh boy.
+This this I don't know what this is, but it looks highly unusual.
+And what this is running is waiting at cat.
+No, no, I'm the one running that cat.
+I'm the hacker here.
+Why would anyone else be running at cat unless fascinating uh hacker.
+So what should I do? I mean, if there's another hacker here and they cause real trouble, I got a Record Keeper going to try to pin it on me so I think the only way forward for me is I need to play goodie-two-shoes and
+Please get my rear end out of the fire.
+Yeah, we need to call Tabby
+You keep bothering me.
+What do you want now?
+Ella have a fossa.
+When I was a child, I spake as a child, I understood as a child, I thought as a child. When I became an adult, I put away childish, things cute. But really, why are you interrupting me? We've been playing games.
+We were supposed to be on the same side, okay?
+yeah.
+And are you familiar with an admission of controller on the cube system namespace, executing, not cat.
+I mean, no.
+Yeah, why would that why would that be this?
+oh,
+we should really start the security incident, response procedure.
+Let me create the incident record and Paige, Paige. The forensics team for us.
+We can start filling out the forms together. I can take your initial report right now, while we're on the call.
+What?
+Nothing, I'm impressed.
+Okay, okay, so
+Here's the first question.
+All right. That's that's the last of them. Okay thank you so much for bringing this to our attention Island.
+ensure maybe I was wrong about you.

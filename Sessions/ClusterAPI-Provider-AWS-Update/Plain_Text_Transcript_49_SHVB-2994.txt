@@ -1,0 +1,223 @@
+﻿﻿Cluster API Provider AWS (CAPA) Update - Richard Case, Weaveworks & Sedef Savas, VMware: SHVB-2994 - events@cncf.io
+
+Participant: wordly [W0] English (US)
+
+Hello everyone.
+Welcome to the class re-pipe. Provider, AWS project update.
+I am satisfied.
+I'm a software engineer at VMware. Transitive I am one of the maintainers of cluster API provider AWS project. I've been working on this project over a year now.
+11, my name is George case on the template at weaveworks.
+I'm currently working on bare metal tester API, based products and solutions for weaveworks and also any cluster API provider, AWS maintainer. And this is our agenda for today. We
+You an overview of cluster API Cappy and class repair provider, AWS Kappa.
+They're both C cluster lifecycle sub-projects.
+Then we are going to mention about some new features in Kappa and do a quick demo to give you an idea about how all this works together.
+Then we will talk about our roadmap. And last we will mention how you can get involved as a contributor.
+So let's cluster API and what does it do for us? Given its life cycle management is complicated to be day one and day. Two operations and cluster API brings Community Style.
+Declarative API is to simplify this management it. Manages kubernetes clusters Again by kubernetes clusters and you see the cluster I log on the right.
+It is a reference to tortoise all the way down, because we are using
+Kubernetes clusters to manage, kubernetes in general Kappa. Bring some automation to the management of the Clusters. In terms of creation, skating, repair upgrades and deletion
+You can create your current clusters on, either on-premise data centers, or Cloud providers. And each infrastructure provider has his own way of provisioning resources like virtual machines load balancers, Etc,
+And classroom API, is infrastructure, agnostic staff, to support these various infrastructure providers, it acts as a building block and provides interface for providers.
+So that providers can Implement these contracts and gets plugged into cluster API, so that users can provision clusters on them.
+Currently we have provided implementations for all the locals. You see on screen like
+Aw WS as your vsphere and if you want to see the whole list, you can check the link below. If you don't find your provider in the list, you can always build your own provider.
+There is a section in the cluster API book that shows the contracts for adding a new provider.
+And I'm gonna know next.
+slide please.
+Yeah.
+And kept it has lots of cool features if you want to know more in detail, there's a deep dive session on Friday.
+I suggest you see the session.
+If you want to know more. And now I'm handing our to reach to talk about class rep, a architectural details. This diagram represents it's at the high level architecture of how cluster API works.
+There are three main portions. Do it on the left-hand side, we have the the Clusters definition as the animal. In the middle portion we have the management cluster and on the right hand side, we have the resulting clusters that are created or the tenant clusters.
+Us with a definition of a cluster, this is created using the Apple.
+This is essentially like, you were declare the applications that run on, within kubernetes. But for your cluster, the actual real was made up of a number of different kinds. And on the left hand side, you can see how color-coded diagram that represents this.
+So, the purple is kinds that are provided to us by a cluster API.
+There's an upstream project and then the pink and the orange are implemented implemented via providers.
+So essentially you have to start with that.
+You have to write your cluster and it's definition.
+As you have all, this is applied then to a management cluster. So this is a core concept to cross-train cry. You have to have a management cluster where you apply these definitions in
+To the role of the management cluster there is to to run the controllers from the various providers of cluster API as well.
+and provision, the Clusters that the tenant clusters on the right hand side.
+side. So essentially this is, this is a two-step process to the first step. Is it Provisions? The infrastructure in the Target environment. So whether that is creating the as your VMS, or with the knative, rest creating dpc's and ec2 instances for the
+Vitamin. We need to provision that infrastructure, first for kubernetes to run on.
+Then a bootstrap provider is used to them to bootstrap kubernetes on that infrastructure and create the cluster for you.
+So you can see within the management cluster, you can see the color coded representations of the various controllers for the different providers and also cluster API itself. When I cluster is provisioned, essentially, it will also store a kubecon
+holds act cluster within the module cluster, and you can then use that to connect to the newly created cluster
+So what is Capa first and foremost Kappa is an infrastructure. Provider what that means is it will provision the AWS infrastructure that is required to write up a kubernetes cluster with in AWS
+The provisions of the structure in an opinionated way, so you don't have to specify. Every, every aspect of the infrastructure, you can just let the provider.
+Take that opinion. Knative you or what infrastructure.
+it should great. Obviously that doesn't fit, everyone's needs so you can bring your own infrastructure so you can provision your trucks. Have by some other means like Terror for more crossplane and and plug in the details of that into the Kappa manifests.
+When creating clusters with with Kappa, you can create two types of clusters. Essentially, it's one, we call unmanaged. And that is a basically a ec2 instance space with you baby. Em bootstraps and more recently, you can create what we call
+Manage clusters, which are essentially PKS clusters under the cover.
+To go back to the diagram.
+We saw previously.
+So what I've taken the here is essentially the representation again with the purple representing the cluster API resource, kinds and overlaid that with the capital resource, guys. Now, this doesn't show every single resource guide that you can use
+But it shows you as representation.
+Main things to note here is, on the left hand, side, or clusters are provision, with the set of credentials of this, this will be covered in later on within the talk.
+Then we will come to the cluster.
+We have an AWS cluster representation.
+One thing to note here is when you're using a managed cluster that AWS management role plane represents the infrastructure and the controlplane, which is, which is slightly different to an unmanaged cluster. Look towards the bottom of the diagram, you see it
+Patience for the actual worker. Nodes, in this diagram, we have machines and machine course, but they might also be machine deployments.
+And what you can see from this is within Kappa, the resource kinds, Rado this machine Adams, machine port, and AWS management scheme for, and you'll see for manage clusters, that sits across, all of this is a bootstrap type.
+And this is essentially for from manage clusters, this is called eks. Config
+Yeah, and now I'm gonna motion about a command line, utility called cluster, AWS idea that we publish with our releases, it has some helper functions for
+Cluster AWS Stadium bootstrap, command managers identity and access management objects, like Ross, policies, and these are used by clusters and Kappa controllers.
+Also, after every kubernetes release, we build and publish AWS images are my is using another kubernetes a project called image Builder.
+And these mmm ice comes with packages that's needed to boost wrap the not by default value.
+Create a community cluster with a specific version.
+Kappa picks the right image depending on the version from from an AWS account and two lists all available are mice for specific communities versions and is distribution. So you can use
+Idiom.
+A - command. As a side note, by the way, we also, support custom are mice, created by users on the Kappa. Managed eks site, we have cluster AWS adme KS, command to list.
+Available and installed at us.
+Yeah. So let's talk about some new features of Kappa so in general we release minor releases every six months or so and a Perpetual he's almost every month we are currently at
+Version is 0.6 Journeys, which was released last September.
+And I'm gonna mention about some new features in is 0.6 release, which is common for both managed and unmanaged clusters.
+The first one is multi-tenancy previously kept a controller used to use. Same set of credentials. It is initialized with to reconcile all the workloads Clusters and
+Is not suitable for especially large organizations where they would prefer to run their management cluster in and management AWS account.
+And each team has their own AWS accounts to run their workload clusters.
+So we introduced a male tennis support with this release Kappa. Cannot do a and I am role assumption at runtime on a per cluster basis and each workloads cluster you can
+Pick and choose a different principle to be used during reconciliation of that cluster. And you see the CRTs, we introduced to support not Tennessee, different kind of
+Isabel is controller. Principal role. Principal aesthetic principle. Also. We have a new controller for backward.
+Compatibility compatibility for the existing clusters because we need to create a controller principle to make the previous clusters. Mark continue to work, and the next feature is AWS machine pool. So we added
+Feature with this release and it is responsible for creating and managing. AWS auto-scaling groups using launched Apple has so users don't have to manage individual measures. So
+Let's continue with our demo.
+Alright, so before, even creating our management cluster with Kappa and Kappa controllers, we need to create some. I am resources and we use cluster AWS idea for this be created, as you see here.
+Cloud formation state with all the necessary, roles instance, profiles and policies.
+And these resources can be customized by passing a config file to Cluster AWS ADM.
+In stem, or I'm going to shove a use case where management cluster is running on a management, AWS account. And a team has a different account that was to bootstrap and workloads cluster using workloads
+So on the left here, you see and I created a management role.
+This role will be used to bootstrap our management cluster. So our Kappa, Kappa controllers will use the straw.
+You see, this management role has the necessary permissions to manage AWS resources for our clusters. Like easy to yell be a cetera on the on the right hand side.
+Do you see?
+The workloads wrought. This is the workloads AWS cluster.
+sorry workloads, AWS account. I created the workloads are all here which can be assumed by the management role on my management
+Code is also has the necessary permissions to reconcile the resources necessary for an AWS cluster.
+We see.
+Let's see how we represent these roles in our workloads cluster Manifest.
+This is a simplified version of the workloads cluster.
+You see a controller principle here which is which represents the principal our management cluster is put strapped with. In our case, this is the management role in our management account and then this role
+Some of the workloads Roll on our workloads AWS account.
+We also provide details about how this role will be assumed with sources support.
+For our case, we want management role to assume this workloads wrong.
+So we added this controller Principle as stars, principal ref here. So for the sake of time, I already created our management cluster and
+workloads cluster.
+Let's see what controllers are management.
+Cluster has.
+So these are the these are all the Cap'n keptn controllers in their own name spaces. You see here. Let's check out our cluster objects.
+We have a capri cluster that referred to the infrastructure providers cost object, which is AWS cluster for us.
+us. And here in the AWS cluster object, we specify infrastructure specific meaning such as networking.
+And also we provide a principal ref here.
+This this principle graph will be used to create infrastructure resources for this AWS cluster.
+Let's take a quick look at the resources.
+Kappa forever block cluster.
+So, here you see a VPC created for the demo cluster, and when we check our sadness, we kept a controller created that public and private subnet, private, most controlplane
+Place and workloads are located in the prior subnet and a lot more assertive located in the private subnet.
+And but these are all configurable.
+We create some World round table rules Nats, Gateway, security groups, Etc. And if we go to our ec2 dashboard, we see the API server, that that came up on the public
+This with, let's check the instance with our single controlplane instance.
+When we check our running instances, this is our controlplane workout, controlplane instance,
+We also had a have secured tutorial groups created for this workout cluster here.
+I'd like to show one final thing in our demo file, which is machine pools.
+So, you see, this is the cluster a pair construct formation pools, which refers to AWS machine pool. And here, AWS has machine pool has details about how we want to
+Create our launched and place for auto scaling groups. If we go back to our console,
+So, this is the machine pool created by Kappa controller with this launched and bullets.
+With the
+specific instance, itrenew provided and key pair name, Etc.
+And then we check again our ec2 instances.
+This is the single instance, because we, we set the desired instance to one in our machine poop specifications.
+This finalizes. Our demo.
+and here are some more features that become available with 0.6 release.
+First one is we added support for using spot instances in Kuwait. Mix clusters support, the instances are not reliable. Ec2 instance, types that are cheaper and
+Far fault tolerant of our clothes.
+The second one is. We started watching for ec2 instance, State changes using event bridge and simple queue services.
+Previously, when there's a easy to State change capable of detecting it until the next reconcile, which could take up to 10 minutes.
+Now, when I change is detected, it triggers make a double especially reconcile. Also in the street is we added
+Support for dedicated sources, which are basically easy to instances that run on hard to bears that are occupied by a single tenant.
+Also be added AWS requester allergic because AWS Turtles API requests for every L, WS account on the Parisian basis. And we added that logic stop our service requests when we
+AWS starts threatening us. And now I will ritual Mansion about new features in eks.
+So, all the automated side of the provider.
+support is new in the 0.6 release. So this is still boxes experimental and you actually have to enable it explicitly via the eks feature flag.
+So there's two main see how these that you need to create a cluster ecos cluster.
+First one is a do is manage controlplane.
+So when you create and manage cluster, you have a AWS cluster and you have a cube, a DM controlplane within the managed side of the provider. You only have the AWS management controlplane
+Bye.
+bye. It acts as both the cluster, and the bootstrap provider combined into one.
+For the work of those within the eks cluster, we support three types of workloads, essentially machines, which are easy to based instances. And these are individual machine. So you individually declare the machines. You want to add to the cluster and from a
+Your point of view, use the copy machine kind. And the AWS machine kind when you when you declare in these
+Sedef. As already mentioned about machine pause and machine pools can be used within an e KS cluster. These again are essentially Easter auto-scaling groups from a eks point of view.
+You have to use the machine or copy declaration and also the a doubles machine ball.
+But in the UK site, we also have another variant of the machine force and these are called manage machine.
+Paul's, if you're aware of the case, and using chaosmesh blee these get represented within as eks.
+no groups, essentially to use these.
+You need to use again the copy machine pool, but then there's a different kind from Affleck.
+Apple point of view and that is at the AWS management Sheen pool. If you want to use either variant of the of the machine Hall, you must make sure that
+Enables the machine called feature flag and you can use all three of these with Enrique's cluster so you can mix and match and have different types of working hours. With, in any case cluster just need to create declarations and reference the the manage controlplane.
+So we also support our cluster, I am roll creation, by default, when you, when you, when you use first aid of sadm, it will create some default roles for use with the controlplane and the worker nodes that may not be suitable for
+Fuel type of scenario. So you can enable via feature flag that there is. I am roll creation and then there's iron rolls per cluster and within that cluster will have a animal for the controlplane and the worker knows.
+So that's something to be aware of.
+Also, if you use the KSU, you'll be aware of the way that you're authenticated and authorized into the into the cluster.
+And that's the reason I am authenticator. So the AWS management role played allows you to declaratively map users
+in roles that will result in the, the config of the require configuration changes within the cluster, for a do is, I am authenticator, we also recently added support for eks add-ons, there's only one animal present, which is the PPC cni-genie
+But this is neighbor allows you to declare what add-ons you want within a cluster. And then also upgrade the versions of those add-ons in a declarative manner.
+We've also added support for fargate profiles and this is in 0.65.
+and this allows you to essentially, to attach the fog, a profile to your cluster and then effectively run specific ponds within that Fargo profile at the bottom of the screen. You'll see that they
+How you install the the capital provider into your measurement cluster, a few things to note. We've talked about feature Flags quite a lot.
+There is convention about how you can enable those those feature Flags fire environment variables and in the bottom of the screen, you'll see some examples of that.
+So what is the actual what is the apple look like from a management point of view from the eks cluster point of view.
+So here's two examples on the left hand side and the boxer, a you see an example of the AWS management role playing so this represents the cluster and a bootstrap that like I mentioned before, I want to point out a few things here.
+Firstly we have that that principle ref so a link to the credentials that are going to be used when provision this cluster. So which account and know which user accepts.
+I was fossa number.
+we want, we want to use it in the cluster and then, as I mentioned previously, we have the section for add-ons. So this is where you declare what Idols you want within that cluster and the specific version numbers and this is where you would edit this
+if you want to upgrade to a new version of the add-on,
+And finally within within this this example you can see that I'm mapping a roll. I'm mapping the administrator access.
+I am roll to the system Masters role within Community or group within kubernetes.
+So this is where you do that. Declarative configuration of a difference. I animals indicator on the right hand side, you'll see an example of a chaosmesh machine for. So this is very similar to what sedef showed in the demo. But this is just for the, for the
+Has received full side of things and you see it's very simple. You know, we are expressing to properties here, the Min and the max size of that of that machine for size.
+So what does the red map look like for for Kappa?
+So we essentially have two versions of Cabaret presents.
+So we have the 0.6 released version and this maps to the cap eveyone Alpha 3 version and you should consider this the stable option.
+use this first especially for any production like in scenarios.
+But also currently working on 0.7 and this is compatible with a bit of cap ev1 Alpha for Focus, really, with this is on stability and you exchanges in the API that are eventually going to lead to
+Peter release on the Peter Grant, uation of Kappa and Kappa.
+When talking about these two versions, you should note that we are only going to backport bug fixes and security vulnerabilities from 0.72 0.6. Yeah. So we are still working on
+The features that will be in for we visited.
+Several release.
+we will continue to focus on improving stable to that's for sure. But that it did. These are some of the features that are coming up.
+We for the arm manage site, we plan to extend our spottings to support by also supporting others on ec2, Phillies and Scott leitz. Also, we will verify using GPU is easy to install.
+This type as workloads.
+So for that we will probably add confirms test that uses everyday igp operator. Which is basically responsible for installing necessary drivers for kubernetes GPU support.
+And finally, we will add ignition support and start supporting ignition format for our bootstrap data instead of only using cloud in it to refund our bootstraps,
+Grip, during instance initiation.
+That's all on the immense, like manage site.
+We were focusing on three main areas.
+So the first area is to implement the oid.
+See provider associations, this feature was recently introduced into eks, so we're implementing that. So we get to the point of having feature parity with eks.
+We're looking at changing the way that we handle launched him plates within the manage site.
+Currently, we generate a default watch template but we don't actually allow you or to, to configure all of the options within a large depth. So this will be coming along.
+From an API point of view, we are going to refactor. The a do is manage control plane and essentially deprecates the AWS managed cluster.
+So currently the a-teams mo controlplane has grown organically a bit in all honesty and we're going to change it and we Factor it.
+So there's a bit more structure to it.
+So it's obvious when you use it, you know what options you should be using.
+So how do I get started?
+So first and foremost, try Kappa, n Kappa. Kappa B is a project creates a quick start guide. And within that quick start guide, you can choose flip through and choose which provider you want to use and to get
+The point of creating a management cluster to creating your first tenant cluster. Once you've done that, you can then look at the Kappa specific books that we publish.
+This has various topics that are specific to Capital, that will be useful like, different scenarios how to contribute in our really cycle and stuff like that.
+Then if you still still interested come and look at the code. Come on, the car repo'd.
+It's within the kubernetes eagle get within within GitHub. So, you can come and take a look at the issues, the release is and the code. We also have our own channel within the kubernetes flat called, cluster - ADI - AWS.
+we also have office hours that you can attend and listen to where we discuss issues and the roadmap needs a biweekly on a Monday at 10 a.m. Pacific Time or six petabyte-scale.
+UTC. How can I contribute?
+There's a number of ways you can contribute.
+It's not all about coding.
+So the first way, do you have writing skills?
+So every project needs documentation, you know the QuickStart guys architecture diagrams and so on, you know, for the project to be successful, we need documentation.
+So you have those skills that, you know, we've really welcome you to come and come and join the project.
+Do you have product skills? Can you translate actual real-world scenarios into requirements and issues that need to be implemented within Kappa though?
+Can you help with with prioritization with when we're planning?
+These skills are really really important to make sure that we deliver on what users want.
+Do you have coding skills?
+You know, it's not all about actually cutting code. You know, we need people to review, poor quests.
+we need people to investigate issues and try and recreate them. And quite really useful tickets for us. If you want to code as the great, you know, we need more people to go and you can look at the issues and see the ones that are tagged as a good first
+We'll help wanted.
+That's a great place to start.
+We also require people to, to improve our test coverage whether that is the unit tests for the interim test. You know, you know, there's lots and lots of other ways you can help with this project, you know, just
+Long and get involved.

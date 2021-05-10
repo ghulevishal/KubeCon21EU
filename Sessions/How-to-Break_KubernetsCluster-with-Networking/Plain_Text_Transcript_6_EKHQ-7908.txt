@@ -1,0 +1,223 @@
+﻿﻿How to Break your Kubernetes Cluster with Networking - Thomas Graf, Isovalent: EKHQ-7908 - events@cncf.io
+
+Participant: wordly [W0] English (US)
+
+Hello, welcome to my kubecon session breaking your kubernetes cluster with networking.
+My name is Thomas graph.
+I'm CTO and co-founder of iso valence. I'm also one of the co maintainers of psyllium.
+a cni plugin for kubernetes.
+And in this role, as being one of the maintainers I have to chance together with the rest of our team, to work with many of you on the orking related.
+And as part of part of this, we learned a couple of things around that are working on, what could go wrong. So in today's session will kind of dive into them and give you an opportunity to learn from what we have experienced experienced over the last couple of years.
+It's quite obvious that networking is everywhere. Like we take networking for granted every day in our life. We have Wi-Fi connectivity. All the time.
+We kind of get this immediate itch if interactive connectivities out.
+So, networking is here, networking. Connect everything. We taking for granted.
+house to work. If the network is not available, it usually leads to very serious consequences.
+And at least I saw a couple of mentions in the OR for networking even in the kubecon titles like to the previous one.
+Let's have a quick look.
+So when I saw this light as a couple of things, I saw like an app team scheduling 5,000 services in there. I saw Ike kubecon my pulling on cue proxy.
+I saw a cute proxy trying to pull up iptables, trying to kind of make it scale trying to kind of implement intent from the app team.
+Hey, I need, I need the app team wants me to schedule 5,000 servicemeshcon
+Is I need those packets low balance observability, K. We have like the lifeless probe up there.
+Without network event has to celebrating.
+Obviously not seeing the network being down and choosing around my services are happy.
+I'm even seeing like a person looking away and of resembling the platform team ignoring crashing codeine as pots, which are affecting the app team.
+And even the Moto for watch together is kind of networking related, it made me think of like all the different
+Involved in kubernetes networking ci/cd.
+no chaining cute proxy, Ingress coordinates, servicemeshcon networking, all to get all coming together and trying to forward, Network packets together.
+So, let's dive in kubenetes networking, the dark side.
+So kubenetes networking is simple and I think it has a lot of great advantages and in general it works really really well. There are a couple of dark sides to it and that's what we will kind of 11 lighten today.
+Obviously we cannot have a networking special session without a special appearance from DNS very obvious.
+If you like DNS stories, you will definitely get enough of them today.
+Well, before we dive into concrete example, bit of context, what are the stories coming from?
+First of all, as I mentioned, I'm a silly maintainer.
+So these are stories from our users.
+If you have never heard of psyllium, psyllium is a cni-genie longing.
+I monitor or among other things.
+It is e b PF based and it provides networking security and observability.
+don't worry, this talk is not going to be about Saloon. I will
+If you want to learn more about psyllium check out cylinder.
+I omit has pointers to all the source code repositories docs and so on, you will learn everything that you want to learn on that website.
+All right, so let's Dive In.
+Before we go into stories, themselves will do a very, very quick 101 on kubenetes networking because if you boil it down, it can really be simple. Obviously, this is slightly over simplified and and in some cases it can be a bit more complex than this
+But in general disorders are the assumptions that kubernetes networking is making. First of all all parts have an IP and second all parts can talk to each other.
+This is typically called a flat layer 3 Network.
+And then in general, this is no longer always true. But in general parts, eiders are allocated to notes, and then notes allocate out of that cider to departs. So, in this example,
+Apple. We have 1001 0/24 and to local part in that node will get IPS out of that range.
+Then if you want any sort of load balancing, you will use kubenetes services and you can use DNS for service Discovery and network policy for segmentation.
+So in general, it is as simple as this.
+Which I think in on its own, has a lot of merits and a lot of benefits.
+And the most of the stores will hear today are actually not about failures of this model.
+It's about details and amount like small little pieces that you can get wrong.
+So, first of all, of course DNS.
+Kubenetes DNS. As we learned is used for service Discovery.
+Usually implemented with coredns with core DNS. Although you can, of course implement it in another way.
+It's often run as a multi, roughly cat deployment, but you can also run it as a demon set.
+So you have a DNS responder and every note and it typically needs no app changes.
+So kubeflow it will inject a resolve.com into the pot correctly and it looks simple.
+already in general, it is a simple model.
+If you believe everything, I've just said you probably have never seen this.
+It's not DNS. There is no way that the NSE twas DNS if you are new to devops, this is the first thing you should learn.
+It is always DNS. In fact, if you remember this graphic, if you have this graphic handy, you probably get a free level of seniority in the Ops right away.
+So let's look at first, I have a couple here at first, I think this is a very common one. The end dots default.
+So kublr, it injects a bunch of options into etc' result or Kampf.
+Obviously, like there is a search parameter. This search parameter is a list of names and this names will be appended at the end of each name.
+If the name that you look up, you should not fully qualify it.
+This is what allows you to just look up the service name without the namespace. And two surveys suffix and so on this is what makes this workloads.
+And the second important one.
+Thoughts this defaults to 5 in kubernetes and dots. Basically says that if you have less than 5
+dots in your name, it will always append to search list to it.
+And if you have no clue what I was just talking about, maybe a quick demo on how this looks like will help you.
+So let's switch over to our kubernetes cluster here. I have a couple of Parts running and I will run a Hubble Hubble Is salim's. Observability layer based on EPF.
+And we'll run this and this will in a second. This will show all the DNS lookups that we're making.
+And in the upper window, I'm basically just kubecon troll exact into the client.
+And then I'm running Coral google.com.
+And this has succeeded.
+so Google has returned 301.
+And you can see here, in fact, this was google.com responding and then you lower windows.
+So you see a bunch of output? We can actually scroll back up, like, lots and lots of lookups were made.
+Let's draw. All right here to hit its torso.
+Look up. So it actually the DNS query for google.com default dot SVT dot cluster dot local and it was actually for for a. So this is IPv6 and then the second one was done, same name. But for ipv4 then the DNS
+Was reserved as responding not found or not existent and so on. I couldn't look at all of these names. So basically go through the search list and tries all of them until let's go all the way down until the very end.
+It actually does to look up that we want.
+google.com and again it does this twice for ipv4 and IPv6 and you see Google's DNS actually returning here and returning IPv6 and ipv4 address of Google great.
+So what we choose learned is that for any non fdn look up.
+You're not really doing one or two little cops for ipv4 or IPv6, but you're actually doing five internal five, you have five search and race, or forcers Force plus the fully qualified 1, / dress family. So, basically, 10, so you we just
+Look kublr combo, actually did ten DNS lookups. This is not ideal.
+It will lead to a massive number of DNS lookups. So you please educate yourself about and Dot's. You want to understand this and change this default
+and it actually plays into the next problem that we have DNS rate limiting.
+Most Cloud providers actually do rate limit DNS, for example, it'll, it'll be as limits DNS to one thousand packets per second per year. In our, this sounds like a lot, but think of last slide you will have lots and lots
+Cops.
+it's actually very hard to notice.
+So you have actually very likely been limited, but you never knew it reads to at least two random connectivity errors because it will happen, and it will fix itself. And it's also often hidden because P99 latency measurements often
+Of ordina. So that it's not shown often. If you have latency metrics in your dashboards, it will only show TCP handshake metrics. Like how long does it take for TCP connection to be established or how long does my HTTP request/response
+See.
+All right.
+What's the latency between the request response and so on?
+it, often hides, these DNS latency so hard. So hard to notice. The way we found, this is with the Hubble observatories observability, layer that which is saw in the demo.
+Don't worry, we'll have more DNS but for now we'll switch over to network policy Network policy.
+If you have never heard about it, very easy to Claire's who can talk to whom.
+let's say you have a front-end part and you have a backup Point within our policy, you can basically inject or start a firewall in kubernetes and then Define roles. For example, front end can talk to back end and everything else should be denied.
+So one of the most common failures that we are seeing here is something like this user wants to allow front-end talking to back-end. Rights is simple Network policy Network policy.
+Stackpulse Electra match labels up front end, egress to part selector. Matching labels at back-end cool, right.
+Easy straightforward. What could go wrong?
+What could go wrong? This is allowing front end to back end.
+Right.
+Easy.
+Well, did you think about DNS often?
+DNS is overlooked.
+In a negress network policy, you will automatically put egress of that part into default deny, which will block DNS. So, you have to allow the address. It's surprising how many users are being bitten by this
+Listen. Yes.
+With some cni-genie cluding.
+So um, you can define global policies to Define as cluster wide. But we stand in our policy, you have to allow this for every namespace separately. So as soon as you go from default allow into default deny you have to think of DNS. So
+You think is what you need. Is something closer to this, where you not only allowing front and two back end, but you also know allow to accordionist.
+You can now either edit your llamo or novels demonstrate this real quick. We have actually made our nor policy editor available for everybody, so this is a free offering that you can use.
+You can access it via 82.7 that I owe. And it's basically a visualizer and editor for Network.
+Policy. So I've loaded the policy that we have looked at so you can see, there is like a portal, a crap front end. And it allows in the namespace to AB equals back-end. Great, do you see the Green Arrow?
+The green, the green arrow here and you can also see that kubenetes DNS is actually still rat so we can go in and actually allow the enough scraped. So it actually added the ammo. We could now download this and applied.
+Kubernetes services and load balancing couple of things here, that will bite you. The first one, and probably the one that you are.
+You've heard before is simply scale.
+So if you're running kubecon Q proxy, and default configuration, you will be using IP tables, it uses linear list of rules.
+So as you grow your number of services and endpoints latency will go up, I've taken a screenshot here, from a kubecon. Talk of 2019, a team member of
+Was presented like a ppf implementation. And also show Numbers, comparing ppf ipbs and IP tables on. You can see that ppf. And I PVS both have basically fixed cost. No matter how many services you're running,
+Based implementation will simply show increased latency as you scale up the number of services and it's not actually observability like 5,000 services on something like this.
+I think there was a claim earlier on by another kubecon chart that you need to run a lot of services.
+A thousand Services is not that much and you already start to see the difference.
+Service loopback. This is essentially a part talking to itself via a service. So very common if you have like a front end and you have a front end service and the front end is talking to the front end service.
+this will lead to packets being routed back into the same part with many cni-genie will just fail silently. And the reason for this is because Linux or Linux networking, the actual colonel
+Only accepts, Network packets, were the source and the destination IP are the same.
+If the if that forwarding is happening on the loopback, the logdna for kubernetes networking.
+That is not the case.
+Packets will go out there.
+We'll go to the cluster IP of the front end and they will be translated and we'll go back in.
+This will lead to random connections.
+Breaking Linux, will simply silently drop down. It's worse because often you're running multiple replicas of front end, which means that
+George of connections will succeed.
+and then depending on how many replicas you're running, only some of them will fail. Some cni-genie losing psyllium. I'm not quite sure which we'd other ones as well do support this specifically.
+So they will translate the source IP to a different IP to fix or to work around this limitation of the Linux kernel.
+Alright, the last one here on the service load balancing side is a man in the middle attack around external IP which basically allows you to redirect any traffic with the help of an external IP service.
+And before I go into lots of explanations, I will just simply demo this
+Let's go back into our cluster.
+And to make sure we have a bit of visibility. I'm actually going to run Hubble again and I'm going to limit the visibility to particular client port.
+And I'm going to curl this IP.
+And actually, let's curl this IP from my laptop first here.
+So this IP is basically an IP of google.com. Alright. So I've Coral Type e here and Google is responding.
+So let's run Hubble again. And let's curl this IP from my client. I'm actually expecting the same, so the same output should happen. So, let's see what we see here.
+Huh.
+This doesn't look like Google at all.
+So this is like some output like some emojis even here like with your success running a Json server.
+definitely something else. Let's see, let's look at Hubble and Hubble is actually telling me that we are seeing packets from like, the client going to Echo a, which is kind of Islam. Is that another part?
+This is an order Padre near so I can look at this service here that I have injected. So I have this Echo a service which is of type load. Balancer, it has an external IP and what I did I've simply added the external IP
+The of for one of the Google eyepiece and this will then load balance to Echo a like the according to the pot selector.
+So if successfully managed to, to steal or packets intended for google.com IP and redirect that to one of my local policy. This is of course, fixed enzyme
+Deliberately running and unfixed version here that to our to still demonstrate this.
+All right. See how these at scale?
+Ci/cd is customer service definitions. They allow you to create custom objects. In cubed is stored in that city of the API server can be created. Watch deleted are often misused for anything configuration
+It's storage and so on sounds good so far.
+How does that affect the network?
+See how these are often watched?
+This means that you are watching for changes on them to illustrate what that means and how that can bite you.
+Simple example here.
+Let's, let's assume you have a CRT and it's on average 50 kilobytes in size that's already quite big.
+Obviously, you can change the math here and you will still be of have a similar effect.
+So let's assume 50 kilobytes per cri-o, i1, average, and five thousand nodes. And let's also assume this crd is
+Each node every 10 minutes.
+10 minutes is not that frequent. Not like it could be like a heartbeat or something or like just kind of a safety update or something.
+That already means that we have one up taper, 10 minutes per five thousand doses. 8 updates per second, this gets worse eight updates per second times. 50 kilobytes times 55,000 Watchers
+At 16 gigabytes per second or two gigabyte per second foot. And then on networking nerds, this is the amount of traffic worst case that if you're running a single API server that you're a pi server, has to push out on the networking side.
+You're a pi server that the VM running this probably doesn't have that type of network connectivity.
+You can make this worse, the Summa Perfect Storm demon set up dates to cri-o on.
+Start up something that's very common and somebody for some reason, deletes all the parts of that demon set and let's say that actually takes 10 seconds. While all the positive being deleted, all of these parts will come up with the same time around the same time.
+They will each update to cri-o,
+The this will lead to 900 plus gigabit per second of network traffic.
+Obviously there's no network that will that will do this.
+I can you won't be able to find a box doing this.
+So this will simply mean like you were a piece of ips or will be busy. Just pushing out these updates for a very very long time and it will stall everything.
+This is a major major cause for scale bottlenecks often in like application code that uses CRS in this way.
+All right, last topic here, cni-genie, figuration Wars. And this is getting a bit into the weeds, but I think it's, it's interesting to know, first of all, it's, you know, Basics.
+So, kublr treats unique configuration from CNN ad C C9 at T or similar, can be different depending on your kubernetes distribution. Often CNN plugins are deployed as demon sets and they drop in their configuration file, for example, 0,
+Comp first file in alphabetical order and that the director of means.
+So, kubelet will take that file Rita congregation and then invoked at cnib, plug-in.
+So, for every pot scheduled, it will do as you know, yet for every pot before it disappears, it will do the cni-genie. Leat and very important than node is not ready. Until a cni-genie figuration is found and valid this prevents part from getting schedule
+For null can actually provide networking.
+Some simple sounds cool, sounds easy.
+Let's look what is can go wrong.
+So first of all, the uninstall leftover surprise.
+So as we learned cni-genie, typically drop this, you know, you configuration as they get deployed, can be done with a poster whole coredns, any container and so on, but you know, plugins cannot remove this, you know. I come figuration on pre-start or
+Some other way. Because if they weren't, then every time you would restart the cnib of art, another configuration file in the Synod, rectory could win.
+So, if you would schedule a new pot while that while your primary cni-genie restarted, that part will girls would get schedule with a different cni-genie.
+Equation behind when you remove them.
+So when you just delete the parts, the conversation will leave behind this means in a lot of cases. If you uninstall a cni-genie, you basically, leave a non-functioning networking in your cluster behind, then you need to fix it up, manually the
+So users deploy a cni-genie by a demon said typically with system note critical, so they get scheduled first, but another cni-genie logging is already pre-installed.
+This is basically the standard on any manage kubernetes offering because of that pre-install cni-genie. The notice immediately Mark ready. So Parts can can scheduled right away
+The cncf the or the demon set of the signal you want, then race has to be scheduled first on that.
+You note, it will probably rain because of system not critical but if that raises lost the intended Plug-In or like your primary season plug-in will never see this again. Is that?
+So, again, the random new parts will have no connectivity bit of a bonus complication here, scheduled doesn't mean running. So even if the cri-o D scheduled first, and starts running first, it's not guaranteed.
+Run to the point where the cni-genie figuration gets dropped or written to disk before the first party schedule. So you might still have a race in there, in the end, the most reliable way to make sure this never happens
+make sure that you have a cni-genie figuration for years for your primary cni-genie as you want it, when the note comes up,
+Last but not least, the a symmetric cleanup scenario.
+Configuration, axis, present, but for some plug in some parts.
+Get schedules.
+They start running new cni. Configuration file is written. You then delete the past the restart them. You know what happens? The old cni-genie never be invoked on. Delete only the new one will be invoked but that new cni-genie
+She has no clue about these existing parts.
+This means that routes interfaces and other resources or simply leaked often.
+This is not an immediate problem right away but it often bites you couple of weeks later on because you will have leftover IPS leftover routes like laying around in your notes, very, very common.
+All right, so this was a quick warp through lots of failure stories.
+As you have learned, we have always have many more but only so much time.
+I want to take a bit of a kind of a summary at the end and, and Culver three Lessons Learned over all like, and kind of give you best practices. Obviously you can avoid this specific mistakes or like learn from them. But in general,
+I have learned three, three things, shiny objects are cool, and kubernetes is one of these shiny cool objects.
+You can build fantastic stuff with kubernetes and it's awesome to build it and can be highly effective but keep it simple. Like don't overcomplicate it
+In moments of complications, any moments of disaster, Simplicity, really helps. I think that's tip. Number one is obviously very generic, but I think it's in particular tool for networking.
+Second one, maybe even more important visibility matters. So, connectivity itself is not is not enough like we, when we talk about networking, we often talk about benchmarks and connectivity, and maybe latency.
+Yes, that's important as well.
+But what really matters on Day 2 and Beyond is to have visibility into what's going on? In a network, we have quickly looked at Hubble that's only the tip of the iceberg. Obviously, it's once losers, many other Solutions out there as well in general
+Don't look. Don't just look at the connectivity angle.
+Don't just look at maybe some shiny benchmarks, even though that matters as well. Look at the visibility, it will really help you when when issues hit when issues hit the ground.
+Last year, I think this is a little bit biased.
+Get yourself some superpowers.
+Salim is not the only project using EPF.
+There's more and more projects in the clown idea. Space leveraging e b PF and its leading to Innovation that is truly awesome for you as a user. It leads to two kubenetes knative solutions where instead of mapping this also new shiny
+As objects and Concepts, into all technology to really map that into something that it that is intelligent.
+And that can benefit from these Concepts. The most, if you want to learn more about EPF, I highly recommend you dig into one layer deeper, learn a bit about the concepts.
+Check out the many awesome EPF projects, tracing security networking, visibility, observability. And so on EP F, IO is a great starting point to get started.
+With that. I would like to thank you very much for listening to me and I really hope that you have learned a thing or two. If you want to contact me, feel free to do so on Twitter. If you want to learn more about psyllium, feel free to go to similar IO or
+Check out the salon, get our project.

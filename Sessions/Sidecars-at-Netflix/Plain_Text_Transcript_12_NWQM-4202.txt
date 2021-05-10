@@ -1,0 +1,171 @@
+﻿﻿Sidecars at Netflix: From Basic Injection to First Class Citizens - Rodrigo Campos Catelin, Kinvolk & Manas Alekar, Netflix: NWQM-4202 - events@cncf.io
+
+Participant: wordly [W0] English (US)
+
+Hi. Welcome to the side. Girls on Netflix presentation.
+I'm Dario. I'm a software engineer at can fold a little bit about me.
+I studied computer science in Argentina and I'm on maintainer of Neroli and cornutus review.
+And as I said, I work at Kinfolk, we are focused on developing open source software, you may know some of our projects, like flatcar containerless ox. There is a container optimized arrests or have Lambda coordinators work UI or
+Of a fully self hosted kubernetes distribution.
+today, I'll be presenting with mass software engineer at Netflix. He works on the computer infrastructure team on containerd execution and we work together on the cycle or going on the kubelet.
+The TOC is divided in two parts. First - will share how network issues inside are containers.
+And in the second part, I'll talk about the problems. We face today with sidecars and the effort we did improve this situation in prodyna to San
+room.
+Hi, I'm honest.
+And before we dive into that occurs here is some background at Netflix, our Fleet is composed of more VMS and Titus or containerd platform is gaining organic adoption.
+We are now working to make titers the primary deployment Target to give developers who won well-supported infrastructure, that allows them to iterate fast and is also more scalable, learn more efficient. At the same time, the goal is to do this, migration fast and automate as much
+And so, hundreds of platform Engineers are not supporting to Department targets for a very long time.
+To get a sense of what we are. Migrating here is what a typical BM runs at Netflix.
+We have the application typically running in the jvm and a series of Damon's providing service Discovery security and observability to name a few things application. Developers, expect these demons to just work and so we run them in an
+The decency to Fashion by which I mean we start and shut them down in a specific order, restart them when they fail and they are generally available to the application as an example, The Matrix forwarder
+Before the agent, which bootstrapped certificates?
+This is important.
+Because consider what happens when that agent starts feeling in our case, it can publish a metric to report these failures, and we can use our monitoring and alerting systems to track and remediate these in the same way in
+the servicemeshcon TLs certificates and the open policy agent to be available before it starts up, otherwise every application has to decide if the mesh needs to fail open, or short, circuited started to do this,
+We run demons assistant D units and use its deesser to get the ordering and restart policies you want.
+We also control the shutdown sequence with systemd. So anode is taken out of service, Discovery and connections get drained before we shut it down.
+Now, here is watertight is host.
+Instance is running the virtual kubelet, launches an instance of Titans executor per container and because Titus is multi-tenant containerless indifferent, AWS accounts, with different security groups.
+And I am rolls in on a shared instance. We provide the functionality provided by Damon 7 p.m. so using what we call system services and alongside a few extra Services we need for example, we intercept
+Metadata should be sort of practice.
+Finally, we have some software, we use to manage the field.
+It might seem that the simplest way to run Services is to run containers that look like VMS, but this means that we have to rebuild and redeploy containers. When we want to replace system services, this impacts how fast we can react the
+Our deploy hotfixes to these services and we see these problems on mediums.
+secondly, it is not possible for developers to import a container from Docker Hub and expect it to work on Titus. In this setup, we want our developers to have this ability to experiment.
+Also, we cannot intercept, the instance, metadata service or amount remote storage securely in this model.
+So perhaps we should learn multi-tenant services on the post. This has no ordering issues and we might optimize some resource usage.
+We started by running a multi-tenant instance metadata Service as an example. But we learned very quickly that users can accidentally dug by workloads which query it in a tight Loop.
+The stars are the containers on the host. And if that Loop is leaking connections, then our service runs out of file, descriptors. And now we have a bad host. Another example is a log viewer, which used to be wanted. And, and developers realize that the log viewer
+For mirantis TTP server.
+So why write your own when you can serve large files by writing them to the log volume?
+And as a platform, we want to be resilient to such resource sharing issues. The second problem is that we have workloads that expect to not be disrupted, once they are runny. This means all our system services will
+Need to have the ability to hot reload and have perfect tenant isolation. If these workloads are going to meet the Restless,
+there are some more serious challenges when it comes to securing these multi-tenant Services. Consider our multi-tenant log viewer, which serve logs for all containers and someone figured out that relative paths work
+We also allowed users to configure the metrics agent using a file in a volume and red team provided a handcrafted executable instead of a CSV.
+Now we have compromised the host instead of a container and this is not acceptable, we feel it is difficult to anticipate.
+All these issues and get perfect isolation and fault domains on multi-tenant services. So we write signal tenant services and contain them with the workload.
+To that end, we have settled on a design where we give every container its own set of immutable system services.
+And usually this guarantee is that once a container is set running, it will keep running to tie the lifetime of the service to The Container. So the service dies when the containerd eyes and a service, also shares the identity fault, domains and
+Containerd, this means, for example, that the application and servicemeshcon, arrikto graphic, identity namespace, and cgroup s', which is almost always what our users expect.
+how does Titus executor run system Services? It starts by creating the container using the image specified by the user and then it bind mounts data containers, which package the system Services into it.
+These are 2 plus containerless in our system and that has its pros and cons.
+It also wind moans a socket which we use to control the containerd, a few volumes and it does all of this in parallel next.
+It runs the container with the entry point set to Teeny, which immediately blocks this creates the namespaces and cgroup sin, which the system services will run TV is a tiny unit for containers, which is used by Doppler and
+User own Fork.
+Now, the executor can set system Services running with the correct order engine, restart policies and we do this, using systemd, these services are actually parameterised units, which are managed by the system D, running on the
+the information about which container to join is passed in files, on the hosts file that as executor
+And finally, we simply use one. See to launch a process running inside your container.
+the service is running in the namespace and cgroup of the container which means that the colonel will reap the service when the containerd eyes.
+once the side cars are running, we release teeny using the socket and it runs the entry point at the child tyramine spilled one except in special cases and we use it to redirect standard output and error and also to do more advanced things,
+Things with seccomp notify. As an example, since we need is not really optional the way we use it. Titus can avoid the overhead, of course, 20 minutes.
+We just follow the reverse sequence when shutting down a container.
+So services are always available.
+We don't have to worry about an application starting before the metadata server starts and crashing or the metadata service stopping before the application and causing the application to crash.
+should point out that there are some special services like SSH where we don't use run, see there used to be a time when we're and Docker exact to get a shell in the container, but that is insecure now.
+We use a custom injector.
+This injector is a small C program.
+Again, we pass information about which namespaces to join via the environment and the injector make sure that it works the correct, a poor one hat and change hat before it enters the container and launches the said so
+With this work, we can use a real SSH server with all the bells and whistles including the ability to ACP files to the instance.
+And that is nice.
+We do some similar Advanced injection for mounting remote storage and intercepting the metadata services.
+and this way we can avoid running privileged containers or using iptables connection tracking and you can find more details in the tightest executor sources which are open source.
+That brings us to how we were Jen and upgrade the system services.
+For most workloads.
+The executor reads what the current stable version of side curse is from a centralized store.
+And this happens at every containerd launch, this makes upgrading side cars fast and simple.
+change the configuration in the store and trigger a redeploy of required and some jobs have more exacting, essays and day, specify exact version for a specific service.
+For example, applications in the streaming path might win the servicemeshcon.
+Some services are obtained and there is a parameter on Titus job, which says, if a container gets that particular service or not, but broadly, it is an open problem for us how we go about managing and upgrading these Services
+We are not the growing number of them to enable our developers.
+The challenge in this space is pretty big and it's probably worthy of a discussion of its own in summary system.
+Services are pretty easy to implement using rootless containers.
+We get the benefit of being able to share Mount and put names to faces when a user logs into a container.
+see a process tree and file system, layout that makes sense. But we can only have one user containerd in our model and we want to have more user containerless to move.
+Discord. Composable workloads.
+Although it is Trivial to create these services and cri-o go.
+goal. It is not so easy to build a relocated statically, linked SSH server and currently we expect our partners to pay this tax alongside others if they want to run system services.
+Lastly, the debugging experience for these containers is terrible.
+You can't ship extra tools with these containers and debug symbols blew up the size of the static binaries which can make these containers along pole in containerd start names.
+So what has this got to do with the kublr?
+Titus started Life as a maze was cluster, but starting in 2019, we move to Virtual kubelet.
+My colleagues are going talked about this in kubecon San Diego, you can look at that top and over the past year we have been adopting more kubernetes components in the controlplane like Coop scheduler cre is and controllers.
+which blue heat management and usage based scheduling as an example.
+So in 2020, we decided that we would try to migrate to the kubelet.
+then we can run multiple user containers and get benefits of the kubernetes ecosystem.
+What?
+We ran into some problems.
+First, we need startup and shutdown, ordering to run pods in our operational model, we have teeny and we know how to write the unique socket. So naturally we thought of building a coordinator, using the web hook and you get this
+Caption this works. But we are not enthused about rewriting entry points to all containers when using the kublr
+We also looked around and found capes, Evan, 5/3 and decided we work with rata to see how far we can get with two phase ordering. Now, if we have that feature, some agents like the log viewer and aggregators or
+Open policy agent can start up before the application of P model msid cars. You can even make the cryptographic bootstrap work by splitting it into a hundred containerd that generates the certificates and a sidecar that refreshes them.
+And then there are some system Services flick storage, which we can Implement using the CSI and metadata service, which we can Implement using a cni-genie.
+But we cannot make the metrics for world or start first, or shut up, or down with connection training, till we have made some more progress on ordering.
+we will probably maintain some highly sophisticated injectors outside the kubelet and that is fine, but we don't want to build a Contraption outside the kubelet or run, an internal for Kendra's maintaining it in perpetuity if the Community
+Different direction.
+In summary, we run side crash in an operationally sensitive fashion and letting them crash is not an option for us.
+We also run an aggressive security posture using user name spaces seccomp and a farmer. And there have been cases where one of these was the final thread between us and an attacker.
+So we cannot compromise here.
+Finally, we like our single tenant Services, they are easy to write and run reliably.
+I want to wrap up by saying that we want to move towards a more composable part with sidecars and multiple user containers and we could use the kublr to get there if it had ordering and user name space support.
+So now over pirotta for more about the kublr,
+Hi.
+I'll now explain. What are the problems that we have with our containers in kubernetes today?
+And the efforts we did in kubernetes option to improve this before we start, let me say that kubernetes know nothing about second enough today.
+College traits all continues in the same way the distinction between sidecar and Main containers is useful. Only for us, at least for now. So let's see, some problems which have today is kubernetes doesn't really know anything about centers. All these are servicemeshcon.
+There are several examples, but these problems are not limited to a servicemeshcon fact. The vast majority of sidecar containers,
+So, one problem that we face today is that there is no startup order warranties the main container can be started before the sidecars, and when that happens, the window between the main concerns is started until the
+The problems usually arise. For example, if the sidecar is a servicemeshcon
+It will work.
+This can be slow do, and if your cycle depends on some other Cycles they can this can get easily super slow and this will be a problem. You you face to scale up when traffic increases for example,
+Another workaround is to change your container entry point. For example, you can change it with a script that wait for other Cycles to be ready and only then starts the main process in the container. An example of this is the linkerd E await comment that wait
+In go day to become ready and then executes your containerd process.
+This has a lot of downsides because in becomes impossible we do a lot of sidecars and we fill the promise of augmenting. The functionality without changes to the main container.
+The container are completely couple right now. If we do this
+Something similar happens when shut down.
+There are no other warranties on Shelton either, so the sidecar can terminate before the main application.
+and this is a big problem for several scenarios. Let's say the South Korea is a servicemeshcon.
+the servicemeshcon before your main container, we won't be able to gratefully finish in Flight connections because we can use the network and this is a big problem.
+Workarounds will shower, from Far From Home, far from good to like doing a flip to delay being killed or in Northern sector, more just losing some traffic. All work on all workarounds have big. Downsides.
+Another problem that I want to talk about is that we can't use psycho containerd with a job today.
+A job is a part that runs until completion and compute something unfinished. Like the first 100 digits of pi
+I need usually works like this.
+the container starts compute, something and finish their for all containerd.
+Successfully and kubernetes process to clean up their part. However, if we are using a servicemeshcon example, we start the boat with two containers. Now, the main container in the servicemeshcon
+because any containers also run into completion, but let's not go into the details of those. Now we can read them in the cap linked at the end of the presentation.
+if you want.
+So those are the problems we currently have with that gun. But now, let me tell you about the core latest investment proposal.
+We work on to improve the situation.
+I kept is a document that describe any encasement maker kubernetes and sidecar cap that add the notion of self-care containers to kubernetes has a long history.
+It was great in in 2018 by Joseph diving and inserted a big discussion in the community.
+about the different ways that can be pursued, solve these issues, we just talked about,
+I joined the sidecar effort in May 22 knee.
+and we really try to do what what is best for the community?
+We're about to as much people as possible, to make sure what we proposed in the cap. Worked for Al Gore for all and not only for us and as a side note, but reaching out, I found out that several companies today are using a kubernetes forget to add the concept
+After containers, I was really surprised about this and but it helped me to convince myself that this is a problem. We need to solve in some way or the other
+And so as I was saying, we're invested a lot of time and effort in this, we met with these companies but also met with developers from linkerd EU missed you. And we did a bunch of other things like make sure the kubelet graceful shutdown cap interacts
+With a sidecar cap, we did a detailed analysis of some edge cases. That were a major concern for Sig note and we found some design issues and box that exists in the Gap and PR that were noticed in the past two years.
+After all of this, we will improve the cap to address all concerns raised by single node and companies use inside cards in the wrong Fork.
+It was not easy, but we found a way forward with reasonable traitors.
+Sadly, there was a catch, the darshan cap focus on doing a simple change, just adding the concept of solid color containers.
+And after much discussion and deliberation it became clear that this would change this change would leave out too many use cases, that would require a significant additional work in the future.
+So, in October 2020 together with the single node Community, we decided to reject the original cap and work on something completely different to solve more use cases.
+Some of the ideas that we might want to explore on on a more radical cap include something like use from levels. For containers talked about termination or or even add an explicit containerd to contain your dependencies like containerd.
+Depends on containerd V.
+So the start of the of a board looks like graphql.
+So we decided to reject this cap and start from scratch. Also, like, really from scratch, we decided to start collecting use cases, for things that are not properly supported in Corners today and sketch some high level ideas or proposals.
+We have done that and we have one proposal biting, Hawking and ideas to later, choose with the community, which proposal should turn into a cap.
+Looking back when men would progress, we have documented a lot of use cases.
+We can now use to create proposals and I really want to thank everyone that helped by adding the risk. A stir this journey also help to clarify that Cycles or somehow important to kubernetes and that we don't want to make minimal changes.
+changes. We want something that probably solve the problem.
+That opens the door not only for bigger changes but also for better support, not just fixing the most obvious use cases that need to work but also much more complex containerd dependencies within the
+there are big, very big project and we've come a long way, but even though it is far from finished now,
+And with this wherever were where we are today, we're at this brick app stage Joseph moved on suddenly, I don't expect to have the time to move this from The Break-Up stage. We currently are at all the way
+Into our cabin later to a journey feature, but I spend a lot of time on this and would like to help.
+So, let me know if I can help to review some proposal organism drawing. Good luck, luckily matches from the community has volunteered to continue to drive this forward and I want to thank you again for this.
+And yeah. So to close regarding South Korea usage, we show for problems with cycles that don't have a reasonable worker in today, and this is making some company for particulate. Like Pinterest enlist how
+Fortune with her.
+Netflix is also diversion of manage job.
+Using the virtual kubelet cycle seems to be a big win for others to, it's a big win for linkerd in eastern and southern France.
+launch. It's also it seems tekton, the Google ci/cd will also benefit from this as they mention in the presentation and keep kubecon 2013. Especially if we add more advanced features,
+And regarding Brilliance. I've got supporting kubernetes were this brigade backstage, and we expect are kept out of the proposal to improve the situation.
+Here are the links for all the things that we mentioned in the presentation.

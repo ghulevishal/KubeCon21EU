@@ -1,0 +1,288 @@
+﻿﻿Cluster API as Code - David McKay, Equinix Metal: OCBR-2341 - events@cncf.io
+
+Participant: wordly [W] English (US)
+
+Hello and welcome to my session cluster API has code. My name is David McKay and I am a cncf Ambassador and Senior developer advocate for equinix metal.
+And I'm from Glasgow Scotland.
+I have a menagerie of animals in my office after each other's biggest better as a dog.
+I'm also a prolific livestreamer streaming multiple times per week, trying to cover all of the cloud native landscape Technologies.
+Hopefully, providing Learning Materials so we can all learn together.
+And of course, I'm also sporting my wonderful.
+Covid hair. You're welcome.
+And I am definitely a member of the pineapple pizza Club.
+Let's get started.
+So what is Custer API project?
+Well, it is a sub-project of kubernetes, the aims to commoditize the creation and provisioning of new, kubernetes clusters provided, you have a kubernetes cluster.
+The cluster API provides a declarative API. Just like we're used to with kubernetes for managing our kubernetes clusters, its responsibilities are to create and provision kubernetes clusters, it will handle upgrades and
+Day-to-day operations including remediation when acquired.
+It is currently an alpha state which means it's volatile and changing quickly because it doesn't mean you can't use it in production today.
+Anna is an extremely collaborative project with members from AWS digitalocean Google, Cloud equinix metal and more almost every cloud provider as a cluster API provider, responding up that next kubernetes cluster.
+Okay, so let's cover some basic vocabulary that you need to get started with the cluster API.
+Firstly, the documentation will make mention of a management cluster, this can be an existing kubernetes cluster that you have available within your organization.
+Or something. As simple as doctor for Mac. Minikube are kind.
+This cluster will run. The controllers are creating subsequent or Target workloads clusters.
+The documentation will also mention an infrastructure providers.
+The cluster API aims to work across all major Cloud providers.
+the provider could be Google Amazon, or equinix metal,
+Mmm.
+And then there's the workloads cluster and workloads cluster is the cost of you're going to have the cluster API create and provision for us.
+Then we have machines, these could be virtual machines or VM on AWS gcp or bare metal instances on equities medal presented the concept of a machine deployment.
+This is a high-level request for the custody of the FBI to create one or more machines.
+The machine deployment is responsible for maintaining and creating machine sets as we make changes during Machine. Deployments new Mission sets are created, the machine says, so then responsible for creating machines.
+We also have machine health checks to make sure the custards are nodes that we provide are always healthy.
+This should feel extremely familiar.
+It's very similar to the resources that we work with day in and day out. Kubernetes deployments replica sets parts and probes.
+Okay.
+now that last stuff that way, let's take a very brief. Look at how you can start it with the cluster API today.
+I'm going to quickly run through the getting started.
+Kate, when the cluster API book, you haven't checked out the book, I recommend doing. So as soon as possible, it has everything you need to know the getting started with the cluster API.
+So what we have here is a very simple, just fail, just feels like a macphail but better.
+It has two different targets. The first in it. This will prepare our management cluster for creating new kubernetes clusters.
+Next, there's a create cluster Target.
+This one's a little bit more of a boost, but this will generate the Gamo required for us to apply to our management cluster. In order to allow the controllers to create our new workload cluster, we specify the kubernetes version. That we one have any controlplane modes we want
+How many worker nodes we won.
+You don't have to worry.
+the a van a single controlplane node or highly available controlplane mode, plus 3 Pi will take care of that for you. And in order for these just felt targeted to work, we just need a little bit of environment information, the Confederate along
+Of course, we need to provide an API key for the cloud provider of choice.
+because I'm using equinix metal, I also have to provide which project to create the devices, then,
+And I also have to tell it which operating system to use for each of the notes as well as the facility to launch them. We can configure the Pod cider and service cider for our cluster.
+and we can tell it which instant types to use individually for the controlplane node and for any worker node bills that we have
+You get started.
+I can run just end it.
+This will speak to my management cluster, which is dr.
+For Mac.
+Mac, it will install all the custom resources to that cluster, get the controller's running and pass in the packet API keys. I need for deploying a new clusters on equinix metal.
+It's called packet just because packet renamed, I will dismantle last year and the provider is a little bit behind.
+It's not the quickest, but it is pulling a number of images to the management cluster.
+However, that is now available for me. Generate my target cluster.
+Cursor control. Is this Temple? Is there a big dent? The East providers repository?
+Try and guess what?
+You need for your Target cluster.
+And in fact, we can pop this open and Bs code and take a look.
+now, inside of our cluster Rihanna you will see
+It could be the M controlplane.
+This is a custom resource Tails, cluster API how to get a controlplane node on your provider of choice. Here, we see a whole bunch of shell commands that are required to configure the host and install, all the kubernetes component.
+We then have a machine template.
+It tells us what over controlplane nodes look like.
+We don't have a cluster ci/cd that contains each of the pods that are service cider and other infrastructure parts that we need.
+by a provider specific cluster that just tells it the facility in Project IDs we don't have machine deployments
+More machine templates. More curium convicts.
+And there we are. 306 Lanes of wonderful.
+Beautiful llamo.
+Okay, let's get started.
+What's the problem?
+Seems simple enough, right?
+Unfortunately.
+yeah, I'm all is not the best programming language for complex logic.
+And we seem to have got ourselves into a bit of a pickle and the cloudnativecon system when it comes to gamble.
+In fact, there are means all over the Internet.
+The how, you know, to be a devops engineered, we have platform, engineered we are kubernetes, Developer is to be a llamo developer.
+And welder funny contains Incorrect, and a whole bunch of other things.
+That's identify will problem. That we have that we've gotten ourselves into. We've got Helm, we've got Carville, go Capitan, we have customized the helpers, try and Wrangle this llamo into something that is much more
+Wound to work with that allows us to handle complex logic and loops templating.
+And I think it's safe to see weasel. If you maintain any Helm charts, I certainly do. It can be overwhelming.
+Because those Helm charts which are trying to set out a predefined way or a best practice.
+We are for deploying a piece of software, doesn't fit everyone. Use case, people want to do their own thing. And we layer and layer on more Loops more conditionals, more lips and more conditional, trying to provide enough
+For the end user, I'll save it on time, but I think Spence of everyone's time, and there has to be a better way.
+So, I reached out to my colleague, Jason seberus.
+This just happens to be a contributor and maintainer of various cluster API projects.
+And I would read his words verbatim.
+Feel free to pause and do that on your own accord.
+But I think the message from Jason is clear.
+The cluster apis responsibility.
+Is the reconsideration creation provision and operability of the target clusters.
+The cluster apis responsibility is not to provide, in-home are economic tooling to generate the animal to describe those clusters.
+And as we've seen through the quick star whale, it does offer, some simple mechanics to generate that getting started. Ya know, the minute you need to be able to make your own tweaks, things get a little bit complicated,
+You have to start copying and pasting your own llamo to get the kind of cluster topology that you would want or expect.
+Yeah, faint it gives you a controlplane cluster. I live, he level.
+But it only generates one single or kaboom.
+and foremost production custards, you're probably going to want more potentially was in different availability zones, within a single region with a variety of instance types some desk, a lease term memory heavy, some CPU heavy, the really
+Tailored to your workbook.
+We're seeing the same confusion and complexity that we see across the broader, kubernetes ecosystems, where deployments and templating know, starting to come to the country of the I visit, not all clusters are the same, and as an
+I want to describe a cluster tool works for me.
+And for that, we need to look beyond the cluster API. The other tools.
+Okay, let's talk about volition.
+If we have to look beyond the cluster API for tooling allow us to define the Clusters that we need and we want for our day-to-day life, to be better. Then we have to look at other two lines.
+Then we have to pick the right tool and I am a firm believer in infrastructure. As code knowledge Channel as could be used in real high level languages that allow us to provide the
+Axes, that we need.
+To make our jobs, almost enjoyable.
+And that means that I want something that is flexible. I want to be able to define a cluster.
+That is the size. I want that uses the node pills. I will use the instant type that one that has the operating system that I want to use. Because maybe there's other things on there that I want to take advantage.
+I think more importantly, is it also has to be composable.
+I think that we are in a stage of kubernetes awareness and adoption, where we know that having one giant monolithic, kubernetes cluster is not the answer.
+we actually won, lots of smaller, kubernetes clusters, and our tooling has to evolve, to help us provide that to scrape that
+So when I say, composable, like, I want to be able to thank what a nautical look snyk for machine learning, workloads and reuse that over and over again.
+Want to be able to find what a note bill looks like the databases for state for workloads or desk iot are critical.
+And security across the board.
+It has to be are goin on.
+I have to enjoy using it.
+Coding doesn't have to be a chore. We provide abstractions and libraries to make our lives easier.
+I want to make future me life easier.
+And there is a way.
+so,
+The solution I'm going to show today is based on a project called pulumi which hopefully you're aware of.
+It is an infrastructure is good tool that allows you the developer to make your own choices. You want to write your infrastructure as code in Python
+Go.
+Tell the script a script dotnet.
+These are all choices you get to make.
+Pulumi allows you and provides an SDK work with the language that you're more comfortable with.
+What we have here is an example of using the typescript SDK for his door.
+To spin up an app service.
+Which has a Handler an anonymous function.
+my business logic, and go to there, and then just four lines of code to describe how to deploy that to the Azure ecosystem.
+These are, the are economics that we're talking about.
+Lesson, 10 lines of code easier to read easy to reason, easy to change.
+It's very explicit, does only what I did.
+There's another project from the pulumi corporation that allows us to generate these tapes.
+From the custom resource. Definitions there whale available in the kubernetes ecosystem.
+I'm not confined to V1 or apps for you one.
+who are already, broadly, known and understood. But to any custom resource that is online that has an open API. Specification is part of this resource, pulumi can generate the types and allow us to consume them using the same are ergonomics.
+We're coming accustomed to.
+As I said pulumi supports the languages that you're already familiar with I'm a big fan of using typescript. I think it worked really well for every shutter is good with a strongly typed but Dynamic nature.
+However, this is cloudnativecon.
+Pisan and.net are also available and more languages.
+I've heard becoming spin.
+And there's one secret thing that launched their recently from the pulumi corporation.
+They have enabled cross-language.
+SDK runtimes capability meaning
+I like tekton gripped.
+I publish libraries and typescript you. Let go. You want the regular infrastructures code? And go. You can Now consume the typescript libraries on goal. As I can consume the type that go library from typescript.
+Wow.
+So for the rest of this talk, we're going to be moving into the live demo where I will show you the library that I felt her allows you to Define kubernetes clusters a great ergonomics, composability, and extremely flexible.
+Okay, let's take a look.
+So what I have here is a brand new pulumi project and state of my kubecon directory.
+Is configured for kubernetes and typescript, which means the comments of the pulumi, SDK, kubernetes SDK and some kubernetes helpers.
+And my own namespace.
+I have access to all of the cluster API resources that have already generated and published first.
+thing I'm going to do is just pull in the cluster, API, generic package.
+From here. We can open our index Dot typescript and we want to import Star as Cappy from our new library.
+one of the more difficult things to automate with the cluster API is that initial and for structure profession,
+Because the only way to do it, is through a cluster control in it - - and four starter pack it, then requires a secret to exist and the environment, the tells the controllers have to speak to the clip of later.
+It does not provide a way to generate the animal and store that for a gitops fashion. However, the library I privated does ship with helpers to initialize your provider in your management cluster.
+So the first thing we want to do is initialize the cluster API.
+And we can do, we can do that through a call to edit.
+Now one of the really nice things about working with typescript, you see, you don't need to know. The SDK is up front because the language there are. Protocols are all really really good.
+In fact, I can just tap copy Dot and already I can see the API space that is available for me to use.
+Now I'm not quite ready to create cluster. I'm just going to do any
+And I don't know what parameters?
+this function, T I open my parentheses and I can see oh
+the inner function takes a cluster API config.
+Hmm. Do we know what a cluster API configures? Well, not yet.
+But we can expand that.
+Use our autocomplete and we can see oh it wants to know whether we should install cert-manager and if so, which version
+It also wants to know whether we want to enable any of the future gigs.
+And finally, I need to kubernetes provider.
+So let's just quickly run through this one by one.
+When we did the cluster control in an earlier, we did see that it installed, cert-manager.
+In fact, it's required.
+So, I'm just going to say true?
+Yeah. Why not install cert-manager?
+what version? Well I already know that 110 is available. I'm just going to drop that straight in but you could find that run the clutch down the cert-manager GitHub repository. Next who feature case well,
+We can hover over and we know that it expects a list of something called a feature Gay.
+Let's just pop, open your list and click on feature gate and we can see the two features available for us to enable.
+We don't need to know what a machine pillars yet. But I am going to enable cluster resource.
+then plus the resources are way for you to Define manifest to deploy to your new Target clusters or workloads clusters when they become available.
+And can I get them?
+We need a kubernetes provider.
+I'm going to leave this blank for just a moment and that's it.
+That will enable the cluster a pi controllers on my management cluster.
+However, I have not provided the - - infrastructure provider you. Let's do that next
+so, we're going to cool, then one more important
+We have to go to our package that Json.
+And I had one more package.
+This time, I'm going to add the packet provider.
+We can run a yarn install and I'll just take a moment.
+Okay, there we can come back and complete this.
+We're going to fill in the packet provider again, we don't know the API up front.
+We can see a packet cap E equals cap dot again. We have the ability to create a controlplane or initialize the management cluster.
+Just like before it needs a convict.
+Okay, so let's take care of that API Keepers. One of those really great things about using pulumi for infrastructure as code is inbuilt secret management.
+That means I can just say blank strength or no, jump up to the top of my file and import the pulumi library.
+From here, I can create a new config object.
+We call this, the convict metal, which is a new pulumi.
+Config with a prefix of equinix metal.
+I can then say here, config metal. Don't require Secret.
+Off.
+That's it.
+What's actually happening here? As there are pulumi, stack is configured with a secret provider that can be a cloud KMS from AWS gcp or anywhere else or it can be a password protected, local provider.
+I can open the pulumi production environment and we see the prefix of equinix metal and we see a key of off token.
+and here, we have an encrypted version of our API token, which is always been consumed here.
+Next, we need a cluster API.
+What is that?
+Well, we can hover over and see this. Just looking for some providers that come from our Cappy, in it, or copy in it actually, returns is set of manifest. So from here, we can see cluster API.
+Cluster API.
+And finally, there's a kubernetes provider, we ignored that above, but we're going to take care of it, no followers. Do is create a new cougar.
+That is provider.
+Or that we import the kubernetes package.
+And we can create a new okay, doc Vetter.
+We can see here but it needs a name.
+We'll just call this local.
+Now we can add our kubernetes provider to both of our edits and that is it
+Now, we can run this pulumi program to provision cluster a pi controllers to it. Kubernetes cluster.
+So of course, I would make you take my word for it. Let's actually run this.
+Over here.
+Jump to the terminal.
+We're going to run pulumi up.
+It's going to work from those functions that we provided, which resource has to be created with under management cluster.
+There's a fair few.
+we can hunt. Yeah and give it just a few moments and it will begin applying these to the cluster
+Now, one of the things, the pulumi does is try to ensure that what we apply will actually become healthy.
+That means it's probably going to set there for quite a while while it waits to make sure that the deployments that an image is to build the pods are passing on the probes.
+the services, have endpoints, all of those little bits and pieces. That normally, we just load the kubernetes reconciliation of to take care of
+So I'm just going to click control. See
+couple of times and I'm going to run get plots all
+Maybe there we go and we'll see.
+We have cert-manager and we have our Cappy controllers and we even have the packet controller manager. Not quite ready yet.
+But getting there.
+And of control, see that because I'm not fussed a better.
+Let it finish it.
+want to show you an alternative approach that may better fit your workflow.
+Okay, let's jump back into our code.
+And where we created or kubernetes provider. We're going to make a few small tweaks
+We're going to open up the arguments and we're going to see that we have a bunch of things that we can tweak was the kubernetes provider.
+For one, it doesn't have to use.
+when the environment I can provide my own kubecon big, I can specify a name space that I want to deploy to or
+I can render. Yeah, no, we can say rendered llamo. Know, we can come to the command line.
+Run run, pulumi.
+a' and instead of reaching out to that cluster Checker, which resources exist, waiting for health, checks, and services, and Adam points, and liveness probes to pass, we can just click yes, and allow polygamy to write a bunch of your animal
+Directory, that we can apply whenever we want.
+Just that simple.
+And that's it.
+We can pop up a vs. Code will see this brand new render gamble directory.
+We can see this year.
+these that need to be applied to the cluster as well as all of the manifests, with all of the resources that have to exist. And that's not all, it's just the beginning.
+As well as installing cluster API and the providers to our cluster, we can add and layer on more abstractions to make our lives easier.
+You can see that there's already the ability to create a controlplane on an equity X-Men or cluster.
+The has the configuration options that and equinix metal customer would come to expect the project ID, the number of replicas the machine types, the facility and image,
+And of course, not equinix metal specific.
+And in fact, we can take a look at D which is the digital ocean operator. Again using just a simple and it command and a config. We can provide the access token, the cluster API manifest and the kubernetes provider, just like we did earlier
+Digitalocean kubernetes clusters available to us on our management cluster.
+There's no reason we can't support AWS gcp and all the other major Cloud providers. It just requires a little bit of effort to put together these abstraction
+Okay, let's head back to the slides.
+Okay, what's coming next?
+Well, that's easy.
+Cates is that really, really cool project.
+It's very similar to pulumi and that it exposes the a multi-language or runtimes.
+Generating, the type is actually a lot easier to see the kids than it is in pulumi. It doesn't require an external command but there are some trade-offs from both approaches.
+As we seen with pulumi, we can use. Pulumi has run time to speak to the kubernetes cluster and do the apply. This allows us to take advantage of pulumi, z-n belt, Secrets management, this protects
+Our access tokens an API keys from being rendered to llamo and available even in family and some location.
+And cdks doesn't have that just as pulumi doesn't have it when we render tree able to.
+So it could be a good idea to install an edit, the cluster API and the providers via pulumi.
+But then use TD kits and pulumi is abstractions to generate the gamble to Define each unique cluster,
+that's up to you.
+And I'd like to see more use of open policy agent for testing the Clusters that we are created.
+The pulumi, STK that I provided apply. Some basic tests. To ensure the all of the feature gates are interpolated before they have you management cluster but there's a lot more that we can do there too.
+And I'd like to see more providers, I'd like types generated for AWS and for gcp and maybe even article Globe, who knows?
+And I think what we really need is more abstraction.
+More helper functions to create unique cluster, configurations for machine learning or computer. Intensive workloads, for stateful workloads, more abstractions and higher level functions that can make all of our Lives easier.
+One of the really good things.
+My cluster API is cost of resources.
+The ability in the management cluster to see when we have a new healthy cluster created, we should go and apply a set of resources.
+These are little for decades to work with because you have to actually encapsulate, the deployments, that Services, the convict Maps is secrets for those individual workloads and into a conflict map itself.
+this is exactly where abstraction is. Like this can make a lives easier.
+So that's my talk. I hope I've given you some food for thought.
+Not only does the tooling that I've shown today for Custer API exist and can better our lives, but it's not confined to Cluster API either. There's no reason we can't use CD kits and pulumi across our entire
+Our deployment surface for kubernetes, but there's still a lot to be done.
+Well, of challenges to solve and I'm sort of things we can make simpler.
+I can't wait see what you do with it.
+Best of luck every day.

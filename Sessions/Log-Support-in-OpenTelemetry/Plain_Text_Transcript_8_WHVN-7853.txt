@@ -1,0 +1,188 @@
+﻿﻿Log Support in OpenTelemetry - Steve Flanders, Splunk: WHVN-7853 - events@cncf.io
+
+Participant: wordly [W] English (US)
+
+Hello and welcome to this session log support and opentelemetry.
+What is opentelemetry opentelemetry is all about making robust portable Telemetry data. A feature of cloudiness software that means the goal is to provide a set of apis, libraries, agents and collector technology.
+It's bundled automatically and available so that you can easily generate a mitt and collect the Telemetry data that you need in order to observe your systems.
+Opentelemetry is a very active project. In fact, it's the second most active project in cncf behind only kubernetes. And this is according to cncf Dev stats.
+The project is seeing a lot of momentum with many people contributing and adopting the technology from cloud providers and end-users to vendors and other open source projects. You can learn all about it in the links provided below.
+Opentelemetry is really focused today, around three primary signals, traces, metrics, and logs and each earn a different phase of maturity. Trace has recently reached the stable Milestone with three major languages, providing support to more
+Right on the way. And the rest plan later this year metrics is currently in beta.
+But the goal is to offer a stable data model here and the next couple of months and then instrumentation libraries will start adopting the data model and logs is currently in Alpha.
+The goal is that Teresa's and metrics will be stable across all major languages later this year and logs will at least reach the beta milestone.
+Hi.
+My name is Steve Flanders.
+I'm a director of engineering at Splunk and actively involved in the opentelemetry project, including the collector and website. I'm also a member of the cncf Sig observability.
+I've been working in the opentelemetry space since its Inception.
+And previously on the open census project, I've also been in the observability space. Now for over a decade prior to Splunk, I was out of ammunition that was acquired by Splunk about a year and a half ago.
+Working in the distributed tracing space. And prior to that, I was working in the logging space at VMware. If you're interested in learning more about me, take a look at the social media links.
+I want to start by kind of walking through the major components of opentelemetry and then overlaying, how logs plays into it.
+Opentelemetry is about cloudnativecon limit, re you've heard of observability.
+You probably heard of the three pillars of observability which are represented as verticals here, traces metrics, and logs these signals or data sources are full of Rich information, but the way in which they're implemented, it's actually many layers deep.
+For each of these, you need some sort of instrumentation API that is used to actually generate an admit that's limit your data that you care about in an implementation of this API, typically notice instrumentation, libraries, or client libraries.
+Then you need the data infrastructure to get the agentry, so you can collect this data, process, it and then export it to whatever back and you want to
+On top of all of this, you have a variety of different interop formats and the case of spans were talking about context propagation, but if you're just talking about Trends, furring data over the network, then there are different wire formats that are used as well.
+All of this is what the opentelemetry project is hoping to standardize and allow for broad adoption in popular open source libraries and Frameworks.
+The focus has been primarily on traces metrics very close behind and logs are being planned at this time.
+We're opentelemetry draws the line is that it doesn't actually provide a back end. Instead it is a open source and vendor agnostic technology.
+So it plugs into a variety of different back ends. Thus the end user can decide where they want to send their data, giving them full control of it.
+Opentelemetry consists of three major components.
+There's this specification that is foundational to everything that opentelemetry does. This is where the API a SDK and data pieces are fully defined.
+Then instrumentation libraries in The Collector. Build on top of the specification instrumentation.
+Libraries are a language specific way in order to generate an omit. The Telemetry signals that you care about the goal is to provide a single client Library per language. The Collector is a single binary, that can be deployed in a variety of different form factors, including as an agent
+Or is it Gateway?
+It serves to receive process and export data and a vendor agnostic way.
+Let's drill into each of these components.
+The specification is organized into what opentelemetry calls signals?
+These are things like traces metrics and logs there are other signals to but for the purposes of this talk, we'll just focus on the different data sources themselves. For each of these signals. You have a data model and instrumentation apis.
+You can actually generate this instrumentation and code and SDK so you can process and Export that data collector support. So, you have an agent or standing laying low and Gateway that you can use.
+There are core packages, which are part of the open source Community with popular things being so provided out of the box, Like Jaeger, Zipkin and Prometheus, and then they're contribute packages, which may not be as applicable to all end users.
+But do also provide support. This is where things like vendor exporters can also exist.
+Context is a key concept of opentelemetry with the idea being that regardless of signal you have context and you can actually Stitch all that symmetry data together.
+Resources is another foundational piece of opentelemetry with the idea being that these different signals come from unique objects in your environment.
+But being able to actually understand what that is like, what Padma maybe what container what cloud provider these things run in. That's where resources come in. The idea is, regardless of the signal, you of a normalized way of understanding.
+What that object. Is this also allows some efficiencies from Aya wire transfer perspective because you can batch based on resources and then finally semantic conventions, which you can think of is like an open standard way of consistently defining metadata. This is
+I can Define like how a database is represented or an HTTP outgoing requests for example.
+Now there is today, a log data model that is in the experimental stage within opentelemetry, that log data model defines a record with several fields.
+Each of these fields are optional, as you look at these fields, some of them may be pretty common to you. Like if you're familiar with logging or syslog for example, things like a timestamp, pretty common severities pretty well known whether it's like an
+Warning or error message and then body sometimes it's referred to as message in the case of syslog, these are pretty common fields that you might see or at least understand the concepts and opentelemetry RI can reset represent this
+In a structured Json, payload like the following. In this example, we have a time stamp and then a body of a message with nested key value pairs.
+We could even extend this slightly by adding severity information.
+Again, each of these fields are optional. So what you specify is up to the implementation, that's generating this particular message.
+Beyond the standard fields that you may recognize.
+There are also some additional Fields many of which are related to opentelemetry. In some way, for example, you have resources and attributes.
+These are Core Concepts in opentelemetry already. Talked a little bit about resources attributes are very similar. You can think of them also is key value pairs, but instead of being applied generically to an object that's delimited, that's
+Generating the signal you would instead, add attributes to specific signal events. So each individual log message, for example, could have different attributes attached to it.
+Beyond this.
+there are Trace context fields that can also be specified.
+things like the trace ID in the span ID.
+Now, you may be wondering why span information or Trace information will be added to logs. And this goes back to context.
+The idea here is that if I have distributed tracing in my environment and I have logging, I could technically go from a trace to its Associated logs, or from a log to its Associated Trace all by this context.
+Let's take a look, an example of this.
+And this example you can see that the trace ID and span ID has been injected into this structure Json payload. This is what allows me to do the core context that I need in order to go between signals.
+Here's an example of a resource.
+What we have this service name and version of a particular resource but also the kubernetes pot, you ID, this could have additional metadata as well.
+For example, maybe the cloud provider if this was deployed into a public cloud.
+And then we have attributes. The key value pairs that are specific to this particular signal message, that is being sent here is where you could Define things like Symantec conventions.
+For example, you can see the HTTP status code key and a value of 500.
+One final thing to note about this payload is, you may notice that it has a time stamp and it has a severity Fields, but the body also contains the time stamp and the severity.
+Now, this could be parsed out and added as metadata to the structure, Json payload or could be added supplementally being passed from one collector for to another.
+So there's no requirement that this data actually match.
+What's in the body? You don't even have to parse that data if you do not want to.
+Now, this log data model is very flexible.
+It's a supports many fields that can be defined but none of them are required.
+Why the primary reason is because opentelemetry is an open source and vendor agnostic solution.
+As a result, it needs to have the ability to convert from and to different formats with the log data model and its current Incarnation, it supports a variety of different Open Standards as well as
+Your standards, for example, you may be familiar with the Apache HTTP server, log model, or the elastic, common, schema, and the case of vendors, you may be familiar with Emma's on cloud trail or Windows Event Viewer.
+All of these different formats could be supported by the opentelemetry log data model.
+So in summary and opentelemetry log record is what you might refer to as a log or an event.
+An important thing to note here is that opentelemetry does not actually distinguish between logs and events today though, it could in the future.
+Now, this log record is really just a structured Json payload.
+It's definition is made up of one of more Fields, all of which are optional and context is supported, not just for opentelemetry, but for other popular Open Standards, including w3c, Trace context.
+There is a notion of are semantics that are that's provided. So you can denote errors, within your structured log messages, and you can convert from into a variety of popular formats.
+Now, this log message that's being generated, log record can be actually be embedded in spans.
+For example, there's a notion of span events for which the log record could actually be attached. Or it could be Standalone which little bit more traditional especially and non tracing environments.
+The key thing to note is that logging is still experimental and opentelemetry so changes to the data model could happen in the future.
+Next, let's talk a little bit about instrumentation, libraries, as I mentioned, this is a language agnostic way to instrument your application, so there's an instrumentation Library per language provided within that instrumentation Library.
+I just used to actually generate the Telemetry data that you care about and SDK, that is used to process and Export that data. And then all the other core specification Concepts that I discussed earlier, including resources, semantic conventions, and the like, are
+Also supported in the instrumentation libraries. So how does logging play in?
+Logging is still quite early when it comes to instrumentation libraries in opentelemetry. But there's some amount of reference architecture or rough roads implementation provided with Java today.
+First, you can take a look at how you could potentially manually instrument your app for logging using the SDK extension provided in the opentelemetry Java project. If you're looking for automatic instrumentation, then
+The Java instrumentation repository offers a logger MDC that logger MDC offers the ability of entering in things like the trace ID span ID and Trace Flags.
+You may remember these War fields that were part of the trace context, defined in the log data model.
+So from an automatic perspective you can get some pretty good visibility in contexts to go between traces and logs today, but it's still early when it comes to manual instrumentation.
+Java is one example of where automatic Trace injection happens in two. Logs python also has an implementation of this and you're going to see other languages adopting it. And as well.
+It's still being considered whether or not manual log instrumentation and instrumentation. Libraries for logs will be provided in opentelemetry. But first a stable data model needs to be agreed upon because the instrumentation
+Libraries need to depend on that data model.
+And until the data model is actually stable taking a dependency at least on the manual. Log instrumentation is not advised at this time though. Using automatic Trace ingestion, or injection is perfectly fine. Because changing those conventions is pretty easy, going
+Now you might be wondering why logs are not ready and opentelemetry. Yet you might recall earlier that there are different signals traces metrics and logs to date traces and metrics have been the primary focus.
+But logs is quickly.
+Starting to kick pick up momentum in the opentelemetry project, especially with the announcement of the stable release for traces. Of course. PRS are welcome. So if you're interested in getting involved, please do
+Now, let's talk about the collector.
+The Collector is a component that's configured via pipelines. Each of these pipelines is made up of one or more receivers a way to get data into the collector. These can be push or pull based processors what you want to do with the data
+As its passing through the collector and then exporters. Again, these can be push or pull base in order to send the data to the destination or destinations of your choice.
+The Collector offers a few key features.
+One of the biggest is that it can actually translate from one format like the formatted receives into into a different format, the format that it exports out of this is powerful because it provides a vendor agnostic solution.
+The Collector can also do things like crud operations on metadata. This is powerful for things like pii reduction or maybe even enhancing the Telemetry data that is passing through the collector.
+And again, The Core Concepts, like you saw in the specification, like resources are natively supported in The Collector.
+At a very high level.
+Here's a reference architecture of how opentelemetry could be deployed.
+It's pretty common to deploy, at least the opentelemetry collector running as an agent on each of the host within an environment. And then the opentelemetry instrumentation Library.
+These are language-specific on the associate applications in this configuration.
+The instrumentation Library, out of the box is configured to send data to The opentelemetry Collector running as an agent. And that agent can be configured via mlperf.
+Send data to the back end or back ends of your choice.
+You could also deploy The opentelemetry Collector as a standalone service or Gateway as well, depending on the use cases of your environment.
+One of the things opentelemetry at tries to do is to provide an end-to-end reference implementation and flexibility and choice at every stage.
+If you want to have your instrumentation sending directly to the backend, and bypass the collector, you could, if you wanted to play The Collector and use a different instrumentation Library, Like Jaeger or Zipkin, you could again, these choices, make it very
+very easy to Plug and Play, regardless of the environment that opentelemetry is deployed in
+If we drill a little bit into the architecture of The opentelemetry Collector itself, you might remember the concepts of receivers processors and exporters those are pretty foundational to be opentelemetry collector.
+Now, you actually Stitch these different components together through what are called pipelines here, the represented in different colors.
+For example, you can see an orange pipeline to find where OTA LP OTP is actually the protocol that opentelemetry supports out of the box. So, opentelemetry is being received.
+So maybe this is coming in from an instrumentation library.
+For example, it's going through a batch processor and attributes processor and it's being exported and Jaeger as you may remember, the collector can receive in one format, but export, and another making it a vendor agnostic solution. The green line represents a second pipeline
+Here again OTA LP data is being received this time, it's going through a batch and a filter processor and it's exporting to to different destinations iot LP and Prometheus and parallel.
+This also provides flexibility and choice depending on your requirements.
+As we look at log collection in opentelemetry, this is probably the most mature aspect today, The opentelemetry Collector supports a variety of different components that are logging specific.
+For example, from a receiving perspective, there is a file log receiver, which supports tail logging. So, for example, you can point it at a log file and it's able to pick up changes that are written to that log file.
+In addition, The Collector offers native support for fluent forward thus fluentd.
+D influent. Bit agents can send data to The Collector and the Claytor collector can process and Export that data out.
+From a processing perspective, you have the ability of you doing, crud operations on attributes, batching the data and supporting resources.
+All key concepts of the specification and a variety of different. Exporters some open source and some vendor specific are available today.
+And more will be added in the future.
+I would be remiss if I didn't point out that recently, there was a donation by observability.
+Of the stanza logging agent to opentelemetry, you can read more about it on the GitHub issue, link above now stands as being fully integrated into the opentelemetry collector and things like the file log receiver, which support tailing.
+Abilities.
+That was part of stanza, but it's one of many parts of stanza. For example, there's Journal, D syslog, tcp/udp Windows Event, log support, filtering parsing and more. All of these capabilities are natively being added to the opentelemetry
+Tree collector.
+So it'll have more logging support in the future. In addition, there are a variety of additional destinations which will be supporting logs in the future.
+With that. I like to turn over to a quick demo to show you how you could get started at least with the collection aspect in opentelemetry.
+At a high level, what we'll have is an opentelemetry collector that is configured to receive fluent forward data. I'll deploy fluent bit which will be configured to collect Docker events and send it to the opentelemetry collector.
+Don't have the opentelemetry collector, send that data to to different destinations one being a logging back end and the other one being to standard out the collector will also be configured to add attribute and resource information. Basically enriching
+Fluent bit. Darker events that are being passed through the opentelemetry collector.
+Let's go ahead and try this out.
+So first, I will start a Docker container that is running fluent bit, so this is just stock fluent bit.
+The one of the latest versions, it's configured with an input of the docker events, input module and for an output perspective, it will send data to Port 8006 on a different Docker container.
+So we'll go ahead and start that container. Now, I haven't actually started the opentelemetry collector yet so as this starts and
+I think data it will not be able to send the data and it will start throwing errors while that gets fired up on the other end here I have and opentelemetry collector llamo file.
+So in this demo file, we will enable the fluent forward receiver. So that's the port 8006 that you saw with fluent bit.
+So we'll be receiving that data in natively.
+We'll go ahead and configure and attributes processor.
+So we're just going to insert a single key value pair here. That key is called
+Foo with a value of bar. We will also configure resource detection so we can add a system information to the data that's passing through.
+And we're going to send that data out to logging locally as well as a Splunk.
+Heck exporter.
+Hoping to show off, elastisys search. But unfortunately that exporter does not fully support logs yet. It'll be added here soon and then it'll be easy enough to demo here. Then we just Define a pipeline that says receive fluent
+Word in, go ahead and add attributes and resource detection detection processors and then export that data out here to to destinations in parallel.
+With that, I will go ahead and start the container.
+This is the container of the opentelemetry contribute positive 3 and it's using the yellow file that I just built and exposing Port. 8000 six.
+This collector will go ahead and get started and then you can see that. The error message will go away and data is already coming into the opentelemetry collector, so we can take a look at one of these log events.
+So for example, we can see there's a log event coming in where resource information is being added the hostname.
+Here's my host name and then the OS type which is Linux then we get a timestamp for that event.
+The severity is not set, nor is the short name, the body. This body is coming from fluent bit itself and then beyond that, there are attributes like for example, the fluent tag is being set, so you can see it's collecting Docker events and you
+May recall the Fubar attribute, and The opentelemetry Collector. So what we can see here is that we have a mix of fluent bit data coming through the opentelemetry collector and then we have resource labels and
+Tributes that are being added by The opentelemetry Collector itself.
+Now, that data is being passed into a different destination as well.
+Being the Splunk, heck destination.
+And if we go ahead and look at the data coming in, we can see, for example, here is a payload that payload has. For example, metadata, including the foo bar attributes that we saw earlier.
+You can see the fluent tag, the docker events and a bunch of other Rich, metadata, that's extracted from that payload.
+Again, this same behavior would be applicable, no matter which destination you send the data to and it's very easy to change the configuration of The Collector just by editing the mlperf,
+German Tatian perspective, there are options available today.
+With that. I'd say, please do check out our special interest groups.
+There's a variety of these that are defined some our language specific for instrumentation.
+Some, our specification specific The Collector has a special interest group as well.
+It's a great way to get involved in the opentelemetry community.
+Definitely join the conversation.
+Each of these special interest groups has their own GitHub project and get Hub discussions is leveraged. In addition. The opentelemetry group is on the cncf slack, which is Cloud - knative dot slack.com.
+And of course, PR is welcome. And everyone is welcome to join the queue a community.
+So, take a look at the GitHub issues. Many are labeled with either good first issue or help wanted labels, which makes it pretty easy to get started.
+Or, of course, you can join a special interest group and ask how you can get involved.
+And with that thank you so much. As you can see, opentelemetry is moving quickly. To provide cloudnativecon like goal is to really help standardize and make it really easy to get instrumentation regardless of the different signals and
+Left and process that data in an efficient vendor agnostic way. Today, there is Rich support for traces that is already stable and languages including Java and Python and dotnet other languages including
+Script and go or planning to be stable very soon. Here the metrics data model is in the final passes of reaching its stable Milestone, at which point instrumentation libraries will start picking up and implementing that data model
+And from a logging perspective, the log data model is still experimental but is actively picking up traction and the goal will be to get that into a more mature State later on this year, with addition, decision around
+Happen from an instrumentation Library perspective.
+At a minimum, you can expect to see more Trace injection into logs across languages and The Collector will offer knative support for logging. And fact, it already offers some pretty broad support for it today.
+And it's already been tested at scale for both tracing and metrics the initial performance numbers for logging.
+Look very promising and will be available and published here soon with that.
+Thank you so much and I hope you take a look at the opentelemetry project and I hope to see you involved in the project as well.

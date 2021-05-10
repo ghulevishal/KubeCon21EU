@@ -1,0 +1,176 @@
+﻿﻿Flux: Multi-tenancy Deep Dive - Philip Laine, Xenit: SFHD-0595 - events@cncf.io
+
+Participant: wordly [W] English (US)
+
+Hello.
+And thank you for joining this flux deep dive session. My name is Philipp Plein and I work as a develops engineer at Senate. We are Swedish based company who builds developers entered experiences around cloud kubernetes and gitops.
+I'm also part of the flux maintainer T and that's what I'm here to talk to you about today.
+So what is flux? Well, flux is a tool for keeping kubernetes clusters in sync with sources of configuration, what this means is that in basic terms, that you have configuration storageos,
+and in some sort of external repository for the most of the time, this will be get and then you have flux the tool running inside of your kubernetes cluster, it continuously synchronizes with that external repository and applies it into the cluster,
+This has the benefits partially due to auditability when it comes to get, because you have a history of changes that you can see who made changes to what configuration, but also to observability perspective, where it is very easy to look inside the git repository and see
+Is actually being applied inside of the cluster.
+So this is a quick overview of how might look like to work with flux.
+So in one end you have your deployment manifest that you are going to commit to a git. Repository, the other end of this, you have flux. Flux is pulling the git repository constantly looking for changes.
+If a change is detected, here it will apply it to the cluster.
+So as you can see here you have your point manifest on one end and then your deployment on the other. This
+Also works in the sense that if somebody were to go in and delete to this deployment in the cluster, flux will eventually detect. The drift between what is wanted or expected and what is actually there in cluster and reapply the
+It's you have the possibility of really doing this as simple or as complex as possible.
+And this example here, it's very simple but you can make, you can scale this out to run across multiple teams and have different types of functionality and automation, but there isn't really any requirement to do so.
+that's kind of the beauty of flux is that it works for smaller teams but also works for large Enterprises at the same time.
+Quickly before we get started going to go through a quick timeline of flux a flagger.
+So currently flux is incubation project, it has 14 mechanics of five companies but it started it's been around for a while now.
+So in 2016 and started developing and weaveworks since then we've had the flagger project.
+showing. This is some project for those that don't know.
+Flagger is a progressive delivery, operator that works really well with flux.
+If you're looking for a project to get involved in, I really recommend getting involved in the flux project.
+It's really fun. And we're always looking for contributors, and we're happy when we see new contributors, join the project,
+Quickly than about my journey into becoming a maintainer about influxdata Ojo. In 2018.
+As a software developer building microservices that were deployed on a cluster or consider which was not kubernetes.
+I was kind of looking around, looking at what other operator like cluster are considered, we're out there and I stumbled upon a blog post about Sony building a Raspberry Pi based kubernetes cluster.
+If I do kind of interesting and wanted just to find a hobby project. So I started building one of my own somewhere
+We're after that, I realized that I wanted to have continuous delivery to my new cluster.
+I realized that the only way currently it was possible was to expose the queue API server to the public internet and I wasn't really ready to do that mostly because it required me to open up before the land, my home router. So, it's looking around and I'm kind of ashamed of admitting
+Hurts.
+The only reason that I found flux was because it was a continuous delivery tool that didn't require you or didn't require an external resource to have access to your cluster.
+So, as flux works by pulling an external and get repository really well with having a small cluster, that could not get public eye piece, moving forward to around.
+Well, now, my cluster does have the ability to get public IP s, but it still runs flux because what is a great project, I think, somewhere, along along the line, there are realized what a novel idea flux was.
+So, I started getting involved in the project. I was using it, I was at work and eventually around when flux V2 started picking up, steam is when I got more and more involved and became maintainer. So so, once again, if
+You are interested in getting involved in know the source project I think flux is is a great project to get started in.
+So that's in it, we develop and operate a multi-tenant, kubernetes solution. That obviously uses flux in our solution, each tenant usually represents a team or a product
+What is the product is? Usually because the teams are working on around a central product together and tenants can raise it. Can rise range anywhere in size between a couple of applications 250 plus we are
+Heavy eye for users.
+So as you can see, we have a case cluster and a couple of research groups. So each tenant is confined by default to their own namespace, within the kubernetes cluster, and it's linked together through an Azure Resource Group.
+So, this brings a challenge of how to expose these name spaces, or tenants to our and developers in a safe and secure way, which has a reasonable maintainability in the long run, when it
+Comes to maintaining the Clusters before I joined Senate.
+We were not using flux there.
+And I think this is a typical deployment method that most companies have been using for a while now with kubernetes. Done well before kubernetes.
+So development teams for maintaining their own CD pipelines, they would have multiple applications. That would have each have a continuous delivery pipeline. I was pushing in, or
+It was the first of all building damage and then pushing that image to a central registry.
+And then it was running some sort of tube CTL apply or how it was Soul, upgrade command towards the cluster, this resulted in applications, having their manifests and source, code tightly coupled
+As each application basically have their own unique manifest.
+It also require each application or at least their CD pipeline to know about the cluster, any changes to the cluster or if you wanted to replace the cluster would require you to go into into each and every application and update
+To pointing towards a different cluster and any small manifest change.
+Would well, first of all require you to rebuild the whole image as adding custom logic to detect, manifest changes and skipping. The build was complex and it depended on if the teams were willing to
+Type of logic but also it would require you to trigger all of the applications.
+So for example we all know that API versions is sometimes, get deprecated in a situation where we were using an old API version and we needed to upgrade the kubernetes cluster.
+We need to make sure that each development team was upgrading their manifest that would require somebody to go into 60 applications and manually update.
+Or re-trigger that application to deploy a new Helm chart to the cluster.
+So your end up building new automation Tools around automation just to manage manifests and this is around the time that I came in and try to bring some of my experiences that I've had in the past.
+Around foot.
+So my idea was that flux would solve a lot of the bigger issues that we're seeing with development teams. Mostly around trying to keep what developers already knew and worked but replace things that
+We're still new for certain developers but could simplify their lives and our lives also.
+So, after influxdata of the main benefits that we're getting is, we're getting a unified enter Point towards kubernetes as it is to pull based deployment method.
+We don't have to export any service account tokens outside of the cluster.
+We don't have to configure individual deployment pipelines to tell it which cluster to look at. So,
+This opens up opportunities of learning, for example, Bluegreen deployments of clusters, it simplifies observability of what is being deployed.
+So this means that we can run automated automated scanning tools to look at our developers manifests to help them be better at their jobs and changes to manifest our easy and fast.
+So when we, if we, for example, come up with a new recommendation or we want to run new API,
+I versions being able to just go into a single repository, or a couple of repositories is way much easier around way much better than just having to do that for 50 or so.
+So one of the cool things with flux is they can run at en a multi-tenancy solution.
+What this means is that you can configure a single git repository to only have access to a namespace. In this case, a tenant would have one git repository and one name space and these would be linkerd
+With flux.
+So anything that you place into this kit repository would then be synchronized into that namespace.
+This allows for a good separation between teams where they can cooperate through, opening up their name spaces with network policies but only a specific team would have access to their own namespace
+Because this configuration is all based on Jama little becomes very easy to automate so you can configure flux and multiple ways.
+So one of them is by using the flux. Eli. Another one is using the terraform provider, which helps you bootstrap the cluster with care reform and the last one is writing manifests on your own, we can quickly demo onboarding a
+New tenants by jumping into this terraform here.
+So this is Tara from sets up a single AKs cluster that has three environments and it's a Dev a QA and a production environment.
+If we call it out, this, we're going to set up a new tenant called tenant, be, we point out the git repository that it's supposed to synchronize from
+and we,
+First-run, a plan.
+Well, this poddisruptionbudgets look at the fleet every boat.
+So for flux the fleet Jeff a repository is the main repository that is initially synced from by flux.
+In here we have a tenant directory and right now we have our tenant a configured. So the tenant a deploys, A or creates, a service account, a role binding, a git repository, any customization for this tenant. And as you can see here, it's pointing towards
+Separate repository, this get repository is located here so this is 10 and bees get across here and they've been super nice that they've actually set up all the manifesting configuration before or ahead of time.
+If you go back for a planet, should be ready to run.
+So 10 and B is just going to deploy a simple guest book application.
+and it's going to set up a certificate, an Ingress and a couple politics that's going to be deployed, but all these changes will be automatically reconciled.
+so we don't really have to interact anyway with the cluster or the team's repository after we set things up because all flux is going to do is going to going to reconcile or it's in synchronize from its Fleet Emperor repository
+And it's going to apply the new tenant configuration that it's committed to the repository. And then it's going to go off to the next, get repository, and for the Tempe and synchronize the chair, the Manifest, and configurations
+There.
+So now the terraforming is completed, we can actually jump in and look what's being changed here.
+So jump into production database or reduction in a space for the tenants, and let's get the Ingress has.
+You can see other great, an Ingress has been applied to Cluster. We can get odds.
+are we can see that we have our guest book application running where the redis if we
+jump, and get the
+Tina's name. We're now seeing the guests kekkaishi running here.
+So what is actually happened? Well, if we go to our Fleet Emperor repository, and refresh the page, we can see there is a new dev, be yellow file that's been applied by terraform this creates the new tenant configuration
+With new role bindings to a different name space and a new get fossa Tori.
+And then from there on fleek infra repo can lose his responsibility over. What else is created here?
+So that flux is going to reconcile this kit repository and look at be tenants, repository. And here we see an example production that we have created an Ingress resource for guestbook, a certificate,
+And we have our base here, and the base is deploying our guest book application. So all this is basically automatically reconciled. So, from from the tenants perspective, they have their own entry point into the cluster that is
+Figured by the cluster administrator successfully introduced flux, it requires buy-in from all participants initially flux.
+Consume a bit foreign in the way that it works to some people and it's mostly because it's Strays away initially from the traditional CD promotion pipeline where you have a first deployment to a Dev environment and
+AQA and then a production and there's like a logical pipeline of promotion and it one of the earlier issues with flux was that there was no feedback loop between a commit and
+An axle successful deployment.
+Today flux has a component called a notification controller.
+What it can do is that it can link together, the reconciliation events from a specific commits to feedback the axle status of that deployment.
+So, in this image to the left, here, we have a get history of commits.
+for each commit you will have flexible reconcile that commit and then it will
+post the status of that commits back to your get provider.
+If it's of gitlab as your develops or bitbucket, this is the same apis that the CIA does it.
+So it shows up as a green check mark or a Red Cross, if it's unhealthy. So as you can see here, this commit to would be reconciled and it might be that your application has a bug in it or that it
+Pull the image and then the reconciliation would eventually fail because the health checks fail, and it would post back a unhealthy commit status back to it. So with this feature implemented, it
+A middle point between the new gitops deployment methodologies.
+And maybe the older ways, where there are very big benefits of getting a feedback between a commit and a success or failure which used to be missing and influxdata
+But isn't anymore.
+What's also cool with this feature is that we're now able to build promotion fossa round this without actually needing a access to the cluster.
+Everything is pulled and by flux so flux just needs access to the kid repositories but also the feedback is posted by flux. So there's nothing going back to the cluster to check the actual deployment. So, in theory, what you can do is you can have a
+Pipeline configuration. That after a change to a Dev manifest, it could take that change.
+Create a PR Keda, QA manifest, and wait for the dev chain commits to have a successful status, post it back, so we can actually do this. Now if we go here and
+whatever hit here is the bottom focus on that have four, and if we jump into code quickly and then we can change the color
+Of the background.
+Let's say.
+There we go.
+Add this change, change background color, push the code.
+So this will trigger a CI plan that's going to build a Docker image and then it will trigger a pro shop flow. If we
+Get the Ingress and we jump to our browser.
+So this is who currently running the, the older potting fo version. We can see this in QA and
+production.
+so, if we could jump to Pipelines,
+I think we're all familiar with this type of build Terry. We're just building a darker image.
+What's different here?
+Is that we have our tenant a gitops repository. So the tenant a is the one deploying the product for application. If we jump into Apps and Dev there is a
+Override of the image tag.
+It has a custom annotation used by the tooling that runs in our CI to update. You can also in theory, do these types of Roshan flows with image automation controller as it becomes more stable I
+Currently, it's in a beta or Alpha release, but probably soon, it will, it will reach a more stable version that will come by default influxdata.
+And so, what our goal is here, is that after the pipeline has been built, we want to update the tag override in this, Dev customization. And after that, is that change has been synchronized into the cluster. We obviously want to go forward
+And move this tag override to the QA environment and then to the production environment.
+And that's what we built here. Is that we've built a, a CI J, that's Falls outside of kubernetes and outside of flux.
+So, this is something that you have to build yourself. But what it enables you to shows you is that there are a lot of possibilities here. And I don't think there is a one good way or best way of doing this.
+think it you have to build these types of things to to fit your type of use case. So we're just going to wait for
+Or the build to complete now.
+So the bill is now completed and we can jump over to our Dev environment.
+You can see that it is now updated. Hopefully, we will also see a change being done in QA, so if we jump into our commit sin, descente gitops repository, we can see a couple of things here.
+So, one of the things is that we have our status objects on our commit, to this looks slightly, different form, GitHub, gitlab and other get providers.
+But as you can see here, these three commits or is statuses are sent by flux.
+So he's here. Apps, Dev, QA and production that are posted back. When a change is synced and successfully applied. We can now maybe see that
+Let's wait for QA.
+So what is happening is that we're running a pipeline that is creating pull requests for us.
+So if you look at completed pull requests we can see here is a pull request that changes the image tag.
+So after this pull request can be automatically completed. If a status check passes we can merge it. And the change will then be applied.
+To the cluster.
+So this Laos is to build a promotion flow outside of having access to the cluster itself. And here we can see also that QA has updated and maybe production will eventually update update to
+and this is all done by by our commit status feature. So the commit status, as we said before, as changes are reconciled.
+It actually knows the hash of the commits that it's reconciling. So that way we can post the status of the commit back to the Clutter back to the git repository, and then it's kind of up to you. You have all the opportunity and all the options to
+Build whatever automation tools or non automation tools. You want around this feature, but the main thing here that is it closes the loop and the same way that a traditional continuous delivery pipeline would from operations perspective,
+A major benefit of running flux is that you have the options of doing proper, Bluegreen deployments of clusters, without having to cooperate with all your developers, to, to re-trigger pipelines. If you weren't using flux, and you'd have
+The bull continuous delivery pipeline is that were pushing application since your cluster, if you wanted to set up a new cluster, you'd have to tell all your developers to, basically re-trigger those and Target a new cluster instead with flux.
+All you do is set up a new cluster pointed to the exact same git repositories.
+Allow it to sink and you're set to go. So these things could in theory, we run during after hours, behind the backs of the end, users are the Clusters and the next morning, they wouldn't even realize that they
+Have you cluster in the first place?
+To demo this, let's actually run a new cluster and see what happens. So we're going to first
+Planet ply our new cluster and then we're also going to update the DNS records because external DNS is creating our data Guinness record security.
+Key allow the new external, DNS instance, in the new cluster, to take over these us records and .22, the new load balancer. So,
+Let's just first, wait for our cluster to be planned and applied.
+Okay, so the cluster has now been created and everything's been provision.
+So features trick.
+We've now configured in a new context we have two clusters IKS to and in case one make is to we have our own info deployments. If we jump back to
+AKs one, we should see.
+Here. If we then scale our deployments down and AKs one because DNS has triggered
+We should know reach the other cluster as you can see.
+Certificates haven't been provisioned yet, but that might take a couple more minutes but this is basically a blue-green deployment without any interaction. We can actually look for example in
+Our old cluster and see that we have for a new cluster. Sorry. And see that we have all our namespaces here now deployed again.
+So that's all for today, folks.
+Thank you all for joining.
+If you want to get involved or start a new discussion within the flux project, I recommend going to the discussions and get up if we're also on slack. So the flux and Flagger slack channel is where you can find us.

@@ -1,0 +1,225 @@
+﻿﻿CRI-O Still Loves Kubernetes - Sasha Grunert, Peter Hunt, Urvashi Mohnani & Mrunal Patel, Red Hat: GKMZ-8730 - events@cncf.io
+
+Participant: wordly [W] English (US)
+
+Hello, everyone. My name is Irving mohnani and I'm a software engineer at Red Hat, as well as a crime maintainer.
+Hey folks, thanks for joining.
+My name is Peter hunt.
+I'm a software engineer, Red Hat. Primarily working on cry. Oh, hey friends. I'm Sasha, what if the maintainers of cryo? And I'm happy to be here today.
+Hello everyone?
+I'm Laura Patel.
+I'm also a software engineer at red hat, and a cryo maintenance. Welcome to our talk cryo, still lost kubernetes. Quite was designed as a runtimes.
+Just go kubernetes. And today's talk, we will go over some of the things that we have been working on and cry to make your kubernetes clusters around even better.
+I will first give a brief overview of the latest developments happening and crowd and then my co-presenters will dive in deeper into some of the notable features we have added, we have been adding more metrics such as improved cri-o level stats that could be exported and querida Prometheus
+Fossa is also working on. Adding whom related metrics, that will give a better visibility into whom kills of your parts.
+These metrics provide a good foundation to add custom alerts to your cluster.
+may have seen our prior talk about dropping the intricate a know. I'm happy to report that the feature is now getting close to stable. As you have been fixing bugs and issues there.
+What Bernard a feature called short name, aliases that we have now integrated into cryo as well?
+These feature allows you to create a new uses for your preferred images and prevents registry image squatters from running malicious images. On your cluster, you can configure aliases for your critical images to better protect your classroom, you can read more
+This feature from the article Linked In the slides.
+Another small feature that I would like to highlight is a peeper of over Unix socket support, by default P process works, over, HTTP endpoint and that needs to be protected enabling it over the Unix socket, key busy and point
+Knocked down by default and provides valuable profiling information to admins and developers more easily.
+We have been using the pattern of enabling experimental features using annotations in cryo to test and refine them before. Proposing them for inclusion as first class features and kubernetes mubashir will cover user name spaces and Sasha will cover
+Compromise generation and the talk today, besides those, we have support for specifying shim size and enabling devices in containers, using annotations, you can check out our docs for more details. If you aren't aware, Docker shrimp is slated to be
+From the kublr and kubenetes 124.
+You can read the link cap for more information.
+The guidance from Sig node is to move to a cri-o base, runtimes, F won't cry out to be a preferred runtimes.
+Now, how can you actually switch to cryo? Simple actually, there are two steps. The first step is to install and start growing service and you know we package cryo for several distributions.
+The second step is to configure the cubelet to point to the cryo socket as a container runtimes and point.
+And you are all set.
+Folks are used to the docker CLI for debugging and building images. Today, we have alternatives for that cry.
+CTL is a debugging tool that can be used to interact with the cri-o runtimes to ready. You can just pause this containers and Spectrum exact into them using cry. CTF, you can check out the link documentation for more details.
+We recommend using Padma and for your local containerd development Workforce, including building a container images tagging and pushing them to a registry.
+Next up I'm going to do a go through a case study that we did and describe some improvements we've made with cryo and handling heavy load.
+This will hopefully highlight a way that cryo is uniquely capable of tuning. Its Behavior to the needs of the cubelet to improve these kinds of heavy load situations.
+And then following slides, I will describe something called a resource which is just a pod or a container.
+Something that the kubelet asks cryo to create whose creation time, partially depends on the load of the node.
+So we're going to talk to the fundamental problem, much like the dr. Shim and other cri-o and limitations given cryo have a client and server relationship because of that. The cube root must set timeouts on resource creation request.
+This is to guarantee the event runtimes
+What part of eventual consistency but what happens when one of these timeouts is actually hit when a Potter container is being created.
+So, I'm going to walk through this scenario, this is the behavior that cryo did before crowd 119. So The Rook the cubelet requests a resource from cryo
+Early on in that process Crowell reserves the name this is a primary key that is used to make sure multiple clients and try to create the same thing.
+It includes the attempt number, the namespace, the Pod name or the container name, depending on what type of resource it is due to system load. At some point, the crowd request takes longer than the qubit is expecting and the
+X out this takes four minutes for a pod and container creation and can happen because of time spent with the provisioning networking Resources by the cni-genie.
+Whatever the reason is the cubelet that the original request fails from the perspective of the Cuban because the timeout happened and it doesn't know that they requested in just go into the void because of that, it sends a new
+Recreate resource requests but cryo is already in the middle of creating the original resource.
+And because of that crowd Returns, the name is reserved error because that unique name is already actively being created in another go routine. Eventually cryo detects crowd finishes creating the resource
+The text that there was a timeout and cleans up all of its work.
+This is to prevent the resource from leaking until the kublr garbage collector has to come in and clean it up.
+But this is not very elegant for a couple of reasons.
+Number one, during this time, the kublr where the Cuban and cry are doing this dance where the qubit request, the resource and crowd returned saying name is reserved that happens every 10 seconds and
+And that every time that happens, an error propagates through the Q. Kubernetes event system saying name is reserved, the Pod sandbox creation failed or containerd creation failed for that reason.
+It's kind of an ugly user experience on top of that.
+that. Cryo, completely undoes all of its work. After the timeout happens, crowd cleans up the resource. So that nothing leaks, but then we end up redoing all of that work again this
+Not only is wasteful but it also further exacerbates a situation that the you know, is already heavy load.
+The node is already under load and that's how we got into this situation and it's only making the matters worse. So we need to do something better and luckily crowd can rely on the fact that it's not a generic container manager, but it specifically tailored Its Behavior
+If it be tailored to the needs of the kubeflow. So one thing that we can do to mitigate one of the problems is finish creating the resource and then until the kubelet asks again, so the process is largely the same.
+The resort name is reserved timeout happens. Resources, create resource comes in again, name is reserved are so those errors are so propagating through the system, but when crowd protect detects, the timeout instead of
+I'm doing all of the work that it had previously done it.
+Stashes it. It saves that resource.
+It's able to do this because the qubit is, you know, special client in that. It has very specific behavior that it does.
+We the crowd developers know that the qubit is going to re-request that same resource until it gets created, just going to keep going going going going. Not only that, but it's going to keep the same unique name.
+The name that we had reserved unless the API.
+II server changes the request but then it's a new attempt number which is a new name.
+So, we know that the request is going to stay the same for that unique name. And for that reason, we can save the request knowing that if a new request comes in, with the same name, it's going to be the same request. And we know that that request is coming because we know what the keyboard is doing.
+So this is great. This all is one of our problems were no longer re doing work that we had previously done.
+When the new request comes in, we realize, hey, I've already saved this resource.
+I'm going to return it to the qubit problem solved.
+So we got one of those problems were no longer doing re doing work, but there's still the problem of the API events. Where during this process, if cryo, is taking five minutes to create this, this
+resource the kubelet is going to be attempting to get, you know, about every 10 seconds.
+Keep us going to re-ask for this thing which you know, four minutes - five.
+That's one left and then so that's about six times.
+We're going to get this event through the system and it's not a very pretty user experience. The user is going to see that they're poddisruptionbudgets of name is reserved and it's going to be failing.
+A lot name is reserved, name is reserved, and that is, so we can do better. So another thing that cryos able to do
+I'm in has done is we're going to throttle new requests and I've kind of changed up the diagram a little bit because it's not entirely clear if there aren't different routine. So cryo are one stands for the routine.
+one, the routine, the go routine.
+That is processing, the original request. So same thing happens.
+Crowd reserves the name cubed times out as all normal Cuba.
+Sends a new request to a new crowd routine which was happening before.
+But instead of immediately saying I am already working in this queue but name is reserved are cry, was going to wait, it's going to stall until either the request times out from the Cubist perspective or for a, you know, a
+A fixed time like six minutes, just to make sure that the Cuba didn't disappear into the void. And we're not waiting forever and or until the resources created, basically what we're doing is we're stalling the cube LED who would otherwise be sending these requests
+Ten seconds, but now is forced to wait for its own timeout length, at least, or at most its own timeout length.
+Eventually cryo the original routine detects that the timeout happened and it saves the resource.
+This is consistent with what we did before and cry over turns an error.
+This the second routine also needs to return an error and this is to mitigate against a situation where the cubelet decides that the request has timed out. At the same time crowd, decides that the resource is available, they
+Cubed cancels.
+cryo attempts to send and that resource gets lost, so to protect against races and to cry, oh, the second one returns an error.
+Luckily cryo knows that the qubits going to re-request that resource pretty much immediately 10 seconds later and on that next re-request, cryo can look into his resource store. Realize, oh, I've already got this and return it immediately.
+so this is a much better user experience and also mitigates against the load where now you know, instead of returning, one of these errors every 10 seconds, it's once every four minutes and we're not read doing all of the work that we did in the original routine
+Saving that resource just as we you know should and the moment that we're able to resend that resource back and we're all like, this is all possible because cryo is able to tune this Behavior to the qubit.
+So next up, I'm going to go through a quick demo.
+So here we have a community local kubernetes cluster set up. We're going to have two different versions. One version is one where we throw away the progress.
+And have this namers Reserve air pop up.
+And the other one is going to be one where the new version where we we save the results, and don't throw away it. And also stall the the cube web.
+So here, the notice just bootstrapping. So I have to admit, I was not able to accurately create this situation. It's hard.
+To put a node under load to the point where this situation pops up, but the node is not totally overwhelmed.
+It's hard to artificially do that.
+So I have spoofed it.
+I hope that you'll trust me that this situation is largely mitigated in production.
+It's a situation that came up quite a bit and we're seeing a lot of improvements with it. But yes, it's difficult to artificially do. So the way that I artificially did it,
+As I have a cni-genie that I created, which is called bridgecrew him out, and all that it does is if the scene I command is AD which is called on a run pod.
+sandbox request.
+It seems her four minutes and then after that it calls the bridge plugin. It's very simple basically does with the bridge, plug-in does. But a lot worse the motivation here is we have seen in production
+Operations where our cni-genie s:r overwhelmed by the rate of sandbox creation and they stall the node, from being able to actually, you know, create the resources. So we ran into a lot of
+Is reserved errors from cipa.
+Ugh, ins being the bottleneck. So this is a realistic situation just kind of spooked.
+So we have the node running with the old cry. Oh, we're going to create this resource. The resource is just going to be a pod that calls top.
+It's my favorite one to demo and then we are going to.
+So we're going to create it and we're going to time travel a bit because I don't want to wait 4 minutes and so soon you're seeing you know 258 340. So we're about to finish creating the pod.
+And we will see that the request is going to fail, and that's because the cubed is going to hit the that for minute that form in a Timeout, going to get a context deadline exceeded are. So this is
+First failure and this is expected because the cni-genie took that long and then what's going to happen, is the qubits going to attempt to recreate that. So here we see, this name is reserved air and this propagates all
+Through the system.
+And this is basically the cubed, you know, re requesting and proud being like I'm in the middle of it.
+Calm down, relax doing nothing to actually slow down the cubelet.
+So this air is going to pop up a couple of times. As we can see here.
+We have a, you know, a they're separated by like 15 seconds.
+so this is a bad user, user experience eventually this pod will a
+Attempt to be recreated and that could pass or as we know, it will fail because four minutes, we'll have been exceeded again.
+So, in this situation, the Cuban and cry would never reconcile, but we can do better.
+next up, we have an example with our new cryo, binary, and we're going to do the same thing. We're going to create this Top Pot with the new crowd, binary, and it's going to be running in the same way with the cni-genie taking fossa
+Minutes much too long for the qubits request, then let's fast forward to when the timeout is about to happen.
+So timeouts about to happen with 3:30 to 348 355.
+So, here we have the expected context deadline exceeded, which we can't do anything about. I mean, it's the cni-genie that's taking a long time crowd.
+Can't make it go, any faster. It's the same way about, you know, the the latency on the cloud providers perspective.
+Can do is successfully saved that resource and be able to move like a lava kublr to move forward.
+So what we're about to see is so it's kind of confusing here but we're going to we're going to show the describe pods.
+So here we have the failed, sandbox request, 19 seconds ago, and then we see the pulling message. What this means is in between that time the creates on pit pod sandbox.
+And because the cubelet once the Pod sandbox said requests exceeds the cube of n starts, pulling the images for the containers themselves.
+So we see that, we're pulling the Alpine container, it's created and it started. So we have a running poddisruptionbudgets.
+Observed errors, but eventually once the resource was actually created cryo, realizes that it's in its resource cash and it returns it.
+And this means that we successfully saved the work that we did before return, the air, and we only return one are through the whole system. So a user will have seen that the context deadline exceeded.
+but then soon thereafter the the request will have passed and they'll be much happier.
+So that's it for the demo.
+All in all we have a situation where cryo is able to better tune Its Behavior to the needs of the Cuba and this is uniquely helpful in this situation where we can mitigate the problems of heavy load, do that
+Come and a lot of the pitfalls that resource creation falls into.
+all right. So now we're going to talk about user name spaces.
+A lot of work has been done on enhancing the user name, space aboard with kubernetes and cryo over the past few months, the user name space to board is currently an experimental phase as we continue to polish it up, but it is something that you can try out and use today.
+There's also a lot of discussions going on in the Upstream, kubernetes enhancement plan for username spaces to continue to drive this to be fully supported feature and kubernetes.
+So you can enable username spaces for a certain runtimes.
+You can specify that one time class with that body animal, and while your other workloads run without username spaces.
+And the picture on the right is an example of a party animal that has the username to sanitation.
+There's certain options you can pass through this annotation. So one of them is the size which sets the size the range of uids the user name space, you want to have the maca root. Option means that it would map it to the uids you and your container
+New container without roots.
+So with any other users such as 1000, you can use the keep ID option here and it will keep that uid.
+And then some other options. Are you can specify the uid map and the gitpod range and this as an option over here as well. And that would be custom to your container.
+So one more thing is that the kernel 5 has added many more features which will make username spaces better and we're working on incorporating that into cryo as well.
+So I've also put together a quick demo showing how all of this works together.
+So I have a local kubernetes cluster up. As you can see, my note is up and ready and I have no part trying right now.
+This is the party animal that I will be using to create my quad.
+As you can see here, I set the size to 65536 and I want to keep the ideas. I'm going to be bonding as user 1000 to make your name spaces work. I have also added the
+For the containers user and my sub.
+you I did some gitpod it will map from 200,000 to whatever this large. Number is, what this means is that on the host will be 200,000 volumes of containerd, will map it to the uid 0 and so forth.
+forth. So 200 thousand and one will be uid wanclouds thousand and to be ready to the container.
+The next thing I'm going to show is The annotation that I have added for my run. See one time and My Cry.com as one C is the runtimes that I am using currently.
+So as you can see over here, I have set the user, ns1 annotation for run, see?
+All right. So I have all my setup done.
+And now I'm going to create the pot that I showed earlier and we're just going to wait for it to come up. Should take a few seconds.
+Okay, it's creating now and let's check again and awesome.
+it's running now. So now let's exact into the Pod and let's check what id, the poddisruptionbudgets, a thousand as I specified in my for the ammo and that's it is, it's thousand. And now, let's check what your idea is running out on
+Most times when I would look for that process and as we can see here, it's running as you ID 201,000 because one as the mapping which are 2002 0 and so forth. So yeah, my phone is running in user name
+So if more isolation, and that's it for the username space part.
+All right, I would like to talk about how we can record.
+Second profile is using cryo and kubernetes.
+The first thing I have to notice is that seccomp profiles for kubernetes have to be available as Json files on this.
+So, we need something like this, we have to specify a default action, we, which is, in our case, group, throwing an error, we have to specify architectures, which is no case, although good architecture for 64-bit. And we need a list of this course, which I
+And a no little example. Here we are. Just a lot of clothes is called
+This profile has to be Eon averages.
+If we compared to the list of Cisco's 401 which is a compliment terrorism runtimes, written in C then we considered a actually the phone.
+So this is also not insured by every version of there, so it could change for a version release 4 and c. And it can also change with the new release fossa run.
+run. This is a main drawback because if you know to create seccomp profiles, we have to require detailed knowledge about the underlying policy. Ryan term used by cryo, how it is called, a cluster is configured. And which
+Version. We actually use.
+So we also need necessarily the application Cisco. Switch may be executed in all code paths and if we miss a code path, then it may be possible that the workload gets terminated during runtime which is actually not what we want.
+What is the solution around this?
+I think you're good solution around. This would be to record seccomp profiles and a test environment and then applic applied to the production workloads, and how this works is part of my demo for today.
+So this demo, we should show you how we can record those seccomp profiles using cryo to be able to run this demo. We have to use the latest version for cryo, which is 121.
+It may not be released yet but we can vary.
+If I which cryo version we are running but just running chrysotile version and here we can see that we use a runtime version 121 a development version and that we actually use the container and have cryo which is important as well.
+So it is also necessary to use a project like the oci second BPF hook.
+It has to be installed and configured on the system.
+So this is a priest thought it was the I hook which actually runs exactly.
+Before the containerd workloads would start.
+It creates a different child process, which compiles, a BPF module, and then attaches the trace point to our running workloads.
+Sample.
+The hook needs capsules admin so it's highly privileged.
+So it's only recommended to run it in the test environment, and it also compile C code on the Fly which means that we need to be Linux headers available on the local system to actually run the hook, but I can just recommend you to give this
+Look because you can also run a department and play around with it.
+So now we have to look at our cryostat is configuration and we what we can see is that we have the hooks puff configured correctly to look at the oci
+Seccomp.
+Rook.
+So the hooks directory is configured to point to the direction that the cry. I was able to pick up that hook and in our case we are using zero and as default runtimes
+And The annotation key iot container. Stresses call provides all information for cryo to record a seccomp profile.
+We can now create a first workloads.
+you Cube CTL run.
+What we do is that we create a simple pot which never restarts and then rerun mkd a test but we also pass The annotation iot container stress Cisco and specify our output file to Temp. My pod touch a saint. Let's give this a try.
+If the container is running and is terminating and it will be immediately get deleted by Cube CTL afterwards.
+So now the pot is get got deleted again. And now cry uses this of' annotation as actually output file.
+We can have a look at the actual seccomp profile.
+Our profile looks like this, which is kind of interesting because it nearly looks like the same in the same way as we specify, the default. Cisco requires is minimal, Cisco, required Cisco.
+As for Sig run. But we also include our I'm Katie of the scholar. In our case,
+And this would be actually already a be usable seccomp profile, but and usually we run multiple containers with in a pot and we cry. I was also able to separate those containers and
+Record into different files.
+So for that, we made a custom modification to cry.
+the cryo has the intelligence to split up The annotation based on the actual container workloads.
+Backed by their name to specify different output files. Otherwise they will override each other if we specify the same output file so this would make any sense at all. But if we now run the pot and wait
+For to be ready that it's actually running then we can have a look at the hook is currently running and attaches to the containerd bit.
+So if we now look at the processes running on my local system, then prep, for Toc is seccomp, EPF Oak.
+Then we can see that.
+We have two instances of the hook running and recording into different files. So yeah, for sure we have to delete the hook again to be able to see what is actually written in though into those files. Now, the pot got deleted,
+Added and cryo uses The annotation that you have again.
+to look to separate our profiles.
+So if we now give our profiles of the first quick look and we can see, OK?
+They look different but to be actually see that they are actually different at all.
+We can dip them and yeah now we can see those profiles have different discourse in it and they are not the same. So this test looks at all.
+All those profiles in kubernetes, have to be part of the seccomp. Rude. So, which is usually the kublr roots, lay second, which can be different configurated into a different directory.
+But in our case, I just have to copy our seccomp profiles into wall, accumulates at calm. And if we did this then we are able to use both profiles in our workloads.
+Created a deployment workloads, for example, which uses two replicas, then we can just use the new security context that composed by which got introduced in kubernetes. Wanted 90 through reference, our Local Host profile and now we can use the nginx
+Prepare for the nginx container and the writers profile for the Raiders container.
+And if we now click create this deployment and wait for it to be available in my local cluster set up, then we can look at our parts which got created, and if we just choose one of those
+It's then we can see that.
+We also have the container annotation for the second profile now available for both.
+So we have The nginx annotation for the nginx profile and the register annotation for the red is profile. And if we want to check how this actually looks like and on a low-level fossa, runtimes.
+Nginx workloads.
+One more thing I'd like to mention is that cryo targets to make kubernetes more secure by default.
+So our overall idea was to make the runtimes default profile for second, the default profile for all workloads right now, all workloads, run confined by default and we created a cap for that. So if you're interested in maybe
+Subject to the kubernetes enhancement proposal and feel free to Ping us on select or directly to pull request.
+Okay and that's it for our talk on cryostat a lot kubernetes we'll take some questions now.

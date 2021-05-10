@@ -1,0 +1,191 @@
+﻿﻿Introduction and Deep Dive Into Containerd - Kohei Tokunaga & Akihiro Suda, NTT Corporation: BRLM-4239 - events@cncf.io
+
+Participant: wordly [W] English (US)
+
+Hi, I'm Cody tokunaga from NTT cooperation.
+I'm Arabia of continuity and the maintenance of known cause of projects logdna up shoulder, in continuity. I'm joined today by Akira yasuda from entity cooperation. He is a maintainer of quantity project. Today, we will introduce
+Deep dive into continuity.
+First, I'm going to give you a brief introduction to continuity.
+Continuity is a conditional runtimes project.
+It is a fifth. Cncf graduated project, containerd e, manages resources about continents, including hunting and processes, images, file system, metadata and resolves dependencies. Then it provides clean interface to
+Everything to reduce internal architecture of continuity data, as well.
+Containerd e is tightly scoped but it's highly extensible in community.
+They are many projects that level it is continuity with extending. It accessibility is also one of the major topics in this session.
+I will introduce some examples about how to extend continuity continuity, is now widely used by containerd based Tools in community, including kubernetes and Docker. Let's now focus on the end table.
+Status in community from the next slide.
+Continuity is widely used in community, including dachas use of continuity.
+continuity is 83% of container usage. According to the survey in 20 June 1,
+Continuity is used by managed Services as well as open source projects including managed services like gke. AWS forget AK is a k8s development, tools, like docomo be Billy Kidd kubernative,
+Submissions that k3s?
+Kind minikube, kubeedge, spray.
+my croquet is and k3s and functional topics, like fossa T. If you are using either of these tools, you are already using continuity.
+So how continuity is used in community?
+Quantity is mainly used in three different ways. It's used as a cri-o, runtimes on Cuba knative as a component of Docker and other General content, management tool.
+By various containerd e based tools. Let's dip a look at each of them.
+One of the most well-known use cases of continuity is as a cri-o runtimes on Cuba IDs.
+As shown, in the diagram, containerd e runs on each node when kubelet on the Node detects party event from kubenetes, server kubelet.
+In Vox content is content management, functionalities, the API used by kubelet, it's called cri-o.
+with contrast using low level runtimes, including Rossi, divisor and Keda continent zettaset to, ah,
+It is now the default standard cri-o runtimes for kubernetes.
+It's used by various managed kubernetes services and kubernetes distributions.
+Continuity has been used as a component of doka doka.
+Relies, on containerd info, continuing education and management. Image is produced and managed by Docker are executed by quantity, as countenance, different from kubernetes. The API used by Docker to invoke
+Ready.
+Functionalities is called continuity API.
+So containerd, e has two types of apis cri-o API. Then containerd e, manages contracts, using low level runtimes continuity is also used as a generic container management tool
+Severe obligations are developed based on quantity.
+They include build get fasty, not cattle and poultry container. Containing the API is commonly used by these tools.
+containerd e provides go client library and utilities for continuity based content management applications can use them for integrating to continuity continuity can also be extended using plugins
+Without to recompile latian as discussed Mater.
+As shown in the previous slides, containerd images, images, containers and pause.
+So how is it done? Let's take a look at Concord its internal components.
+Contrarily has client-server architecture, it provides apis, and content management, functionalities to the client containerd. EU project provides go client library for either integrate to containerd e, client
+Offer via containerd tapi 3x socket in addition to containing the API Community also provides cri-o.
+It also supports no oci runtimes including firecracker continuity is highly extensible.
+So users can customize its functionality using various low-level plugins, custom services or custom client Library.
+We will discuss about extensibility in more detail later.
+Containerd, the project provides content, the API client Library, it is called smart client and contains, which containerd related with
+Sedative, including containerd tapi bindings containerd registry client, pulling and pushing the images image unpacker, and creating or second fig fossa runtimes using the
+Library via several containerd e client.
+implementations in community City, L is a CLI client for containerd. E, this is developed in contently Project.
+like a containerd, the API wrapper and instead of Continental Management utilities it's mainly used for debugging of continuity what trying new features.
+That cutter is a taco compatible CLI for continuity, because of the compatibility, it's easy to use for DACA users. In addition to do comparable features, it also provides quantitative Cutting Edge features
+Being lazy plink and image encryption. We will discuss about another cutter in more detail later with akihiro
+As mentioned in previous, slides, various content based tools are developed, as contradict client in community.
+Level aging client, library, and continuity API.
+Containerd ottava cuckoo provides content management functionality to the client via grpc API.
+The content décor is implemented as a set of micro services and the set of apis of the services are provided to the client as content.
+The API.
+For example, I've shown in the figure, there are several services like continent service for Content, metadata management, image service for image metadata management, tasks service for performing containerd execution, and cri-o
+Office that implements cri-o.
+Cri-o for Cuban in, this is also implemented as a Microsoft Office in quantity. Initially cri-o is implemented as a separated client binary, but it's currently built into content décor. And the
+is also marched to contact the board story things, contently 1.5
+I've shown in the figure cri-o service provides image service APA and runtimes of Avi defined by cri-o.
+Cni-genie is used for network interface preparation for parts.
+And in my right plug in if used for managing node resources, like cgroup, because she arrives have is relies on other services. It contains containerd a client calls for talking to other quantity services and plugins.
+Stone Key Services.
+cri-o Implement Sports continents and images Management in containerd.
+The core there are several services that provide low level role of control management content to store is a store for image contents, including manifest and layers.
+It's towards these contents as its basis. So without the compression new extraction, these contents are content addressable and killed by the content Digest.
+Stop shorter. Also manages image content, but it focuses on the file system.
+Snapshots snapshot are extracted and stacked view of containers root filesystem layers from shorts are created by snapshot and path to OCR runtimes as root file. System of contrast there are several
+So the implementation part barking file system over AF. A snapshot is one of the most used one but there are also other implementations like butter.
+if a snap shooter are you a free snapshot and fused by a snapshot Etc, runtimes are with executes low-level runtimes vs him.
+See me as a rapper demo for OCR runtimes.
+Shem is long-running process that has the same Lifetime with the container.
+So it's well, suited to runtimes that need to manage state for resources like virtual machine of Keda containers
+This figure shows how an image is executed of a continent in continuity, connecting to the registry and downloading image contents. Our clients responsibility registry related utilities are implemented in the
+These smart client Library, once the client pulls image contents, it towards the content to content, the course content store as its basis. So with that, the compression while extra action immediately a
+Stored in the content store like the compressed and extricate, buy diphthong service and First Act would five. Systemvue is managed by a snapshot client Library provides unpack iot for this process since
+Schultz I used by task and runtimes service and past to Osiris runtimes until used as containers root file system. Task service can be used via content, the API bindings, by the client.
+Let's discussed in previous slides containerd e is highly extensible.
+Let's look at how it's done and some examples of extension for leveraging continuity.
+You can extend quantity by plugging external vinyl. He's into containerd e without to recompilation Coppola.
+Athenz can also be used.
+There are two types of external binary.
+Brand means only the plug-in talks to the containerd E, VI Unix socket, proxy, snyk, shoulder and proxy content store are this type of plug ins.
+Another is a plug-in as an executable binary string, processor and shame are disciple, plugins.
+Consider the API is also extensible by implementing your own custom service. For example, firecracker quantity, as new apis, called control API by their own control service, from the next slides. Let me introduce some
+Impulse to extend continuity. Using these plugins
+Using plugins.
+you can enable lazy plink on quantity, remote. Snapshot a plug-in is a plug-in enables. The feature remote, snapshot allows containerd e to perform lazy playing of images from arbitrary, a remote store.
+Lizzie playing here. Means contradiction startup contrast without waiting for the entire image content, being locally available, Instead This is a rich hunks of image content or put on demand as shown in the following figure.
+You must stop sure. That plug-in has a responsibility to fetch image contents from the bucket tool and provide containerless root filesystem snapshot to containerd e.
+I've mentioned in the previous eyes, snapshot I can plug into containerd e VAR index akhat so no recompilation is required.
+There are several remote, snapshot implementations in community. For example, storageos snap shorter is a remote snap shorter developed as a known cause of project of continuity.
+This enables continuity to listenable images from the standard registry.
+Continuity handles images videos for creating content as root file system.
+The image layer formats are defined by Asia image spec and gvf jetstack. Dirt and plaintiff layers are currently supported however not limited to OCR layers contradict can handle up. Surely layer formats like
+Cryptid layers, even if they are not supported by the oci image spec.
+the plug-in enables, this is stirring processor as shown, in the following figure give service can recognize several stream, processors, this service converts image layers downloaded from the registry into root filesystem
+Shots with chaining these during processors each stream processor Converse. The media type of the layer into another div service can handle. Arbitrarily media type of layers.
+As long as the corresponding string processor is plugged into difference. For example, Image Group, tutoring processor enables containerd, e to handle encrypted image layers.
+Stream processors binary can be plugged into continuity as a separated binary so we compliation if not needed continuity, can integrate to arbitrary low-level runtimes. Low-level runtimes are not
+Did to Asia runtime but no oci runtime like firecracker can also integrate to content. A the plug-in enables, this is called shim, shim works as a thin wrapper of low-level runtimes each low-level runtimes.
+Can integrate to continuity by implementing the same following the defines him, a pi r and C same provided by content of the project. Also supports pluggable logging destination feature this enables him to
+Continent logs into archery destination. Like faithful and pipe, external, binary, and file.
+From an exercise akihiro will talk about the quantity client
+Hi.
+my name is akihito sister. I'm a maintainer of containerd e. In my parents. I'll explain how to implement your own continuity grant for Fun and Profit.
+To implement your own contrary client.
+First you need to Choice API from two apis.
+The first one is considered a streamnative API in the second round is Sierra API.
+See knative API is used by several projects, including do Carmo be where's the kid? Firstly, near the city are and other celebrity projects on the other hand cri-o API
+Uh, to buy kubernetes.
+Since apis are similar and the perception use grpc over unique suited as the transportation mechanism, but there are several notable differences.
+For example, the knative API is containerd oriented while cri-o API is punch oriented.
+So the relative API does not have first class support for put objects.
+Is a knative MPI has severe comprehensive complexities compared to see our API.
+But the single point of the Native API is that each has more flexibility and features such as pushing images to registries.
+So so it's hard to tell which one is better but I suggest using the native API or containerd E because you probably want to be able to use all the features or
+but if you prefer Simplicity, you may want to take a look into Sierra API first
+To use these apis in Serie erection, use any programming language.
+However, in practice you have to use go wrong ways. Poser, contrary knative API,
+Because the native API model, depends on the smudge. Current smudge client Library. There is implemented in Golden wedge.
+Especially for putting images from registering.
+So country it's really hard to use other languages, such as rust or python to implement your own client.
+We welcome contribution for supporting more languages.
+The next topic is an example of contradict client.
+We don't fight example HTTP. Constructor has contradicted iOS talks trash getting started.
+In this example, you first create a client object using containerd. It don't new which demonstrates / runs crash. Containerd. Easter has contributed sock.
+and then you create your city, exact there is associated with containerd, E namespace string,
+And then, you present radius image, from Docker hub using client, dr. Pearl
+Then you will create continue named Ray server with severe options.
+Containerd e dot was image, containerd e dot with new snapshot and containerd E dot with milspec.
+And we have more ways with with options such as Asia, in-toto with process, works for specifying the client, right?
+Quadrant shrinks to be executed in the container.
+And also see, I do with mounts for merging data volumes.
+And all cri-o database-- memory limit or limiting memory resources.
+And seccomp touch with profile for specifying a second program.
+At this point, you will continue is almost a functional.
+But in addition to the questions you will have to implement oci folks and and also roller binary in most cases.
+Oh see I have folk is a custom command there is called on the host on creation and deletion of the container. And also UFO is typically used for setting
+And cheering down. See I breathe networks and Port map Communications.
+Using oci folks.
+is optional but necessary, if you want your continues to be restarted automatically on fossa reboot.
+This is complex so I can show the code on the screen, but we can't find the example code in the northern city of Aleppo.
+And if you want to see the rocks of the Contour or transfers the rocks to through entity or something else, you also have to specify a Ruger burglary.
+The narrow City, a repo has a example code for storing Rose as chisel choirs.
+And actually, Naruto City here is almost for implementation of Joker. Accepts warm sir.
+It was sprung out from the coach or CTR, but it has more practical features compared to the city are such as automatic researching of Consciousness and
+Routine and well, there's more.
+And it also supports busy playing using surges, its substructure and also decryption of oci cryptic images.
+We carefully designed the source code or another city are to be readable to beginners.
+So you may copy the source code or narrow City year as a starter pack to create your own client application.
+So just roll the last topic is updates in containerd E, 1.5 and future plan.
+To Berger 1.5 or containerd E is expected to be reached by the end of April.
+This talk was recorded in early April and brother 1.05 was not released at the time of recording, but I guess it will be released by the time of Broadcasting.
+his numerous supports serious, TD as a image compression algorithm, in addition to Jeep,
+It's over ism is much faster than Parish priests Railroad City.
+Prodyna. 1.25 also adds support for NRI.
+North resource interface in our eye is similar to see. I consider networking interface but in Roi is for managing resources such as cgroup sir.
+In this release, we also enabled the creation of oci Crypt by default.
+Also, equipped itself, how to be supported since pressure 1.3, but you had to provide a custom configuration file to use multi equipped in Premier Services.
+We also recently put narrow City are into the country as a sub-project.
+This is a Docker compatible cri-o. Talk about is just a minute ago.
+And in this series, we also merge the reaper of the serial programming into four main repo.
+This change is not possible to end users, but this mono repo model, simply wise process for contributing to control d.
+We also switched away from Brenda, I don't come in to go modules in this release.
+So next is future plan.
+Nginx series.
+you're planning to support fire system culture, such as X increases quarter wasn't notified system of the Clinton years.
+We are also trying to support username species or cri-o.
+This is similar to respond tears which means running everything including containerd e as an honored user. But this is different from Builders continuous. It does that complete easily.
+We are also trying to support holds as first class objects and we also plan to eliminate support image for pots and boxes.
+We also need to have more documentation and we need your help.
+So your stomach is recent updates, observability province.
+Last year, dragonfly released naigus substituted program for quantity.
+Neither substrate is similar to society that subchapter and enables discipline as well as teleport nation of images.
+not just uses a file format. That is incompatible with oscillator balls.
+And Alibaba recently, released over ABD subject of program, really means block devices.
+Over ABD is similar to over the first, but uses SVG broke devices.
+We also have similar new runtime province.
+Wrong.
+You by altinity husband's arm is a runtime.
+Running Linux containers or Mac OS using LTL. Magalix Cannell Library.
+Run J by Samuel carp is a runtime or running previously jails as oci containers.
+Let me recap the decision.
+Community is defects on runtimes.
+Containerd E is designed to be extensible with progress.
+We have many programs such as runtimes, prevents subset. Of prime means showing process stream processor prevent and running programs.
+And recently, we added new subject chords narrow City. This is really don't care about to Bass Pro features of containerd e. This is also like CTR, but with full user experience of Dhaka

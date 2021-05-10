@@ -1,0 +1,173 @@
+﻿﻿Enhancing Kubernetes with the Security Profiles Operator - Colleen Murphy & Sascha Grunert, Red Hat: RPZQ-7148 - events@cncf.io
+
+Participant: wordly [W0] English (US)
+
+Hello and welcome to our presentation on enhancing kubernetes with the security profiles.
+Operator, my name is Colleen.
+I'm a contributor to the security profiles, operator and I'm a software engineer at Souza and it's a pleasure to be here with you today.
+Hey, friends.
+I'm Sasha one of the maintainers of the security profess operator and it's a pleasure to be here today. And I work for redhead
+What will we cover in this talk?
+So, first of all, we would like to speak about how to enhance default kubernetes workloads security. So, we would like to speak about which goes, we would have in mind and how to achieve that, in such a rapidly evolving project, like kubernetes. Secondly, we would like to
+Security profiles, operator.
+So we cover the operator features in detail and how they can be used to make workloads, more secure, and then we will see to operator in action.
+So this is time for demoing the operator while keeping common use cases in mind.
+And after that, last but not least, we will lay out our plan for the future of the project.
+So, for example, we will discuss our long-term goals and we'll leave some room for some Q&A session afterwards, how to enhance? Default workloads.
+Security in kubernetes, kubernetes does not provide strong, security falls out of the box. So this means that kubernetes has to be designed for usability over security.
+So for example, if we decide to restrict business cause of a workload, then we can keep have to keep in mind that this may break applications while it makes others more secure.
+Other than that security related, decisions, have to be considered by the system administrators, the site, reliability Engineers, as well as application developers, and those
+Different rows, make it hard for the community project to decide which position maybe the most important one and which should be considered as the default the security context of kubernetes.
+So it's a security configuration that will be applied to a pot or container.
+Pi field makes the usage of the security feature on confirm comfortable, because the API server can validate the fields directly by applying them to the workload.
+Some security related features, like a palm or are not graduated to the security context yet, they are still using The annotation paste. Some text apply settings to workloads, which is not obvious to lose, and which is kind of error, prone, because containers have the
+Reference spending.
+And seccomp, the disk radiation to the security context and kubernetes 1.19.
+So the feature is now fully integrated into the security context and will not support annotations anymore from kubernetes 1/3 French III.
+Our first goal is to make features easy or usable by providing knative fields.
+example, if you look at the second profile of the security context then we have a knative type which can be Local Host, runtimes, default one confined if it's Local Host then we have to specify a relative path.
+This makes it easier for the users because the absolute path has to be taken into account anymore.
+And if we compared to the former annotation paste, some text and we can see that it's way easier to read and that we don't have to actually reference the container name anymore because we have the security profile field as part of the
+You know, or as part of the complete pot, one drawback, and limitation of that is that we don't have a local host profile meditation.
+So the relative path is still error-prone and there is no solution about how to distribute seccomp refers to all nodes. Our second goal is to increase user adoption of the feature.
+So how to provide stronger defaults for seccomp and kubernetes, can we make the container runtimes, default profile?
+The new default for all workloads or how to distribute seccomp, Rufus across thousands of nodes so can administrators get it?
+Mechanism to easily distribute those second profiles.
+And the last question is, how to create seccomp profiles for my application?
+So is it really necessary to collect all syscalls by hand? Or is there a way to record profiles? So what do we want to do? Let's write a kubernetes and hetzner proposal no features. Can be iterated quickly out of the community source code three, so the development
+You can enrich faster, testing and feature graduation is even easier. So generally it's less effort for the community as well as for the project maintainers to do it out of three and kubernetes 6 can sponsors that your project. So this provides Community infrastructure access as well.
+This provides full ci/cd testing and proud image promotion, and distribution and repository access management.
+This is exactly the point where the security profiles operator, initially seccomp, operator was born.
+So please visit the skates that I owe / security Professor operator and the project is sponsored by Isaac node and listen to the community six names base, which is kind of nice. Because then we can leverage Pro as already mentioned.
+The project already turns, one year in April so we already have two releases and plan for the next one. Containing many new features and enhancements and the idea is to cover. Common use cases around security profiles. So I ran second say, leanix and apple more and
+That bundled into kubernetes.
+So we have a list of user stories, you can give them a look and those contains the three mentioned perspectives of the administrators.
+The site, reliability, engineering, and application developers.
+So we have a huge roadmap, but the project at all is still very tightly scope. So, right now, we still focus on feature, completeness for seccomp and selinux, and how does it work in detail. So, let me pass over to Colleen to answer that question for you.
+You.
+All right, thank you Sasha.
+So I'm going to discuss a little bit about how the security profiles operator works and talk about the current features that we support in it.
+So the operator is driven by a few different custom resource definitions that we can kind of break into three General categories.
+The first is the profile cri-o asu's are the seccomp profile and selinux policy cri-o use. And these are resources that Define the actual security profile that will get installed on the underlying Linux.
+Host then we have what I'm calling composition, crd s, these are the profile binding and profile recording, cri-o, use. And those are resources that will help application developers to build and use security profiles.
+More operational.
+CEO dies. These are resources that help cluster administrators with the running of the operator itself.
+So, going into a little more detail on each of these, we have first, the security profiles themselves. These are kind of the Cornerstone of the operator. We started out with seccomp and seccomp restricts the process. To executing only a finite list of allowed
+Phone calls to find in a seccomp profile on the host.
+And so, the seccomp profile crd provides a kubernetes knative interface to create and validate these seccomp profiles.
+This will get managed on the back end by a Daemon set that converts the seccomp profile resource into a Json configuration file, that gets picked up by the cubelet and use to launch these containers.
+And then more recently, we added support for selinux and
+Asia Lennox defines more complex access controls for processes and files via policy rules and objects labels.
+And so, the selinux policy crd provides again, a kubernetes knative interface for creating and managing these selinux policies, this will also get managed by a demon set that dropsies selinux policies into a
+The host. And then there's a demon that will watch this directory, and invoke selinux tools to install these policies on the host.
+Then we have some more advanced resources that help support application developers.
+We have the profile binding resource which creates a binding between a workloads image and a profile resource. And so with this there's no longer any need to change the yeah. More for a pod to set of security context to find it to one of these
+Profiles instead there will be a web hook that will inject a reference to a profile into a pod security context when you create the Pod.
+And so, this is, especially useful.
+If you are running some kind of workload, that, for example, if you installed an application from an open-source Helm chart, you would no longer need to for coredns at the helm chart, you can just create this profile binding and the Pod and the profile will
+Matically be linked. And then another exciting feature is the profile recording resource. This is for seccomp and it generates a seccomp profile for are running workloads.
+So with this there's no more need to write these complex profiles out by hand, no more guess and check of running the application, the checking the audit logs. Instead of you just create this profile recording resource and it automatically
+He creates a seccomp profile.
+kubernetes resource for you that can then already be used by your application. This does depend on using cryo as your container runtime and it depends on the most recent version of cryo.
+And then finally, we have resources that help support cluster administrators running the operator. The security profiles. Operator Damon.
+resource is kind of a configuration point for controllers, the for the controller that runs the Damon on the Node. So it lets you toggle different configurations or set node Toleration is for the Damon set and then the security profile node status.
+Is a read-only node level view of the status of installed Paula profiles.
+So since profiles are cluster-level resource resources.
+This gives insight into the availability of a particular profile on any given node in your cluster.
+And then finally it's also worth mentioning a couple other features in the operator we have this login richer feature which supplements the audit Logs with annotations,
+That helped give context to audit events and lets you trace events back to the kubernetes workloads that generated them.
+So that's extremely useful.
+And then we have this profile stacking feature. And what this is, is kind of an inheritance model for seccomp profiles, so it's allows you to compose application specific profiles on top of standardized base.
+base. So, for example, if you wanted to create a base profile for all the system calls that
+Run. See would need to launch a container. Then you could also create that as a base profile and then create a slim down profile with just a short list of system calls that you are application. Specifically needs that wouldn't be
+Thoroughly be needed by other containers and with this profile stacking feature, these can be composed into one single profile.
+And so with that, I can break into a demonstration of some of these awesome features.
+So the first thing we can look at is the deployment of the operator itself.
+The operator webhook depends on cert-manager, so that needs to be installed first as a prerequisite and then it's a simple matter of applying the operator manifest to your cluster that will create all your custom resource definitions.
+Set up your are back and run the main deployment and the deployment is what will spawn the demons that the ACT does the actual legwork of managing the profiles on the nodes in your cluster. With that done. The first thing we can look at is
+Reconciliation or how a profile resourcing kubernetes actually gets rendered to disk on the nodes in your cluster. If we take a look at this example seccomp, profile resource.
+This gives us a list of system calls that an application should be permitted to use. We can deploy apply that resource in kubernetes and then if we go and examine it that will give us a relative path where the
+A profile is installed on the nodes in the cluster and we can even go and examine a node and see that the profile has been rendered into a Json profile under the cubelet, where the qubit can
+And use it.
+And then for a pod to make use of this seccomp profile, we need to define a security context for it, with a reference, to that relative path to the profile under the under the cubelet. If
+And create that pod, the pods should be created successfully but if the Pod goes and tries to use a system call that wasn't expected and wasn't explicitly permitted by the seccomp profile, the host operating system will forbid it.
+And if we decide that this is an expected system, call that our application should be allowed to make, we can edit the profile add that system called to the allow list and reapply the profile and restart the Pod. And then
+Heart will be able to use the system call successfully.
+Since we're managing these resources as higher level resources, it allows us to add logic that kind of enforces relationships between profiles and workloads.
+So, for example, if I tried to delete a profile,
+It will not actually delete the profile from kubernetes while it's still in use it will mark it as deleting but leave it existing and it won't actually delete it from kubernetes until all of the workloads using it. I have been removed
+and once that happens, it will get removed from kubernetes and it will also get cleaned up on the back end, because the kubernetes controllers, give us the tools to be able to clean up on the backend
+Needed when a resource has deleted on the in the kubernetes API.
+And then another feature that we can look at is profile stacking. And so what this allows us to do is create a seccomp profile to use as a base and that could define a limited list of
+System calls that we think that any containers should be allowed to use and then Define a much more refined slim down profile.
+That's specific to just our application.
+And so this gives us a much smaller easier to use user to read profile.
+And then if we create a pod that references just that child, or create both profiles the base profile and the child profile, we can see that.
+At when it gets rendered, the composite profile contains all the system calls from both sets of profiles.
+The base profile and the child profile including this application specific system call.
+And so if a pod wants to use that child profile, it will be able to do so successfully.
+And then the final thing that we can look at here is profile binding. And so what this allows us to do is to find a binding resource that links a profile resource, like
+Profile or in the future and selinux profile to a image tag.
+And then we can define a positive.
+No longer needs to explicitly set a security context.
+We can just have a basic pods back to find here.
+So if we go and recreate the original seccomp profile, and then create that binding resource and go and create the Pod. Then if we go and examine,
+The Pod. We can see that the seccomp profile has been injected into this into this pot and once it was created.
+And so, this is really useful for running like, external workloads, for example, on open, open source Helm chart, where you don't want to modify the helm chart, you just want to use your custom seccomp profile.
+This allows that to happen really easily.
+so with that, I will hand it back to Sasha who will demonstrate profile.
+This time I would like to show you how we can record seccomp roof as with the ability security profiles, operator.
+So to be able to run this demo, we would require cryo 121 which may not been released yet, but the latest choirmaster should be shifts efficient at all.
+Could have sued a Christian version on my local machine, then we can see that we run cryo and the latest 121 development version, it is also necessary that we set up to oversee. I II B PF project on the local machine and this is a oci pre-start hook
+Which locally compact cpf module, attaches it to the workload and then traces, its course. If a workloads gets deleted, then this is calls will be put into a file, which can be picked up by the operator.
+we have to configure cryo that it points to the actual hook.
+And for that, we can look at the hooks to your configuration option, which points to the oci seccomp, EPF hook in my local machine. So, everything should be set up.
+What's next?
+Now we have to create a profile recording which is the ci/cd and a simple profile recording may look like this.
+So we create a profile recording with the name devil right now.
+We can only record second profiles and we choose a pot selector which matches our labels app equals demo and all those workloads which match those put selector should be recorded. So then
+Let's create the profile recording and put into our cluster.
+If we now, look at all our profile recordings available in our local namespace, then we can see that profile recordings up and running. And we can also verify the data part selector still matches.
+So let's use a new pod to create some just calls recordings.
+So for that, we just run a simple part which gets immediately removed after it has been run and we will name it. My pot and we add our labels, a people's demo, and then we create a directory test and let's see what happens now.
+The park gets deleted, which is fine and now we should have a second profile available locally disc. So let's look at our second profiles and Outlast us.
+Here we go.
+Our demo my pot. Second profile has been successfully reconciled on every node if we. Now look at the second profile more detail, then we can also find our MK idea.
+Cisco linbit beside out of this course which are necessary to actually run any workload. And now our cluster, this is the
+Least amount of Cisco. Zettaset ERI, two run, single workloads, any kubernetes cluster on my local configuration.
+We can also see that we get some events so the second profile successfully got synchronized disk.
+Now let's delete the second profile.
+again and recording.
+SQL part is nice but recording multiple containers within a single poddisruptionbudgets.
+Then we wait for it to be ready.
+Then we can look that recording is now in progress.
+So we should now test our application so we can for example load balanced nginx or the red is container and then we can actually see that all Cisco. So I'll quote by Paths of that. Container implication gets
+Now, for this purposes, let's delete the part again.
+Now we finally got two additional profiles instead installed instead of just one.
+let's look at our second profiles within our cluster and then we can see that we have our demaratus and them or nginx profile successfully installed into the who different seccomp profiles.
+So let's look at those profiles to ensure that there are actually different
+And here we go.
+We can see both.
+The scores are actually not the same for both second profiles.
+So the recording succeeded at all.
+Now, let's delete those profiles again.
+We can finally bring this to the next level because the operator is even able to record holy plummets. If you, for example, create a deployment which looks like this that we have two replicas of our nginx and res containers and still have applied the same
+Epochal stable, then we can to create a deployment and wait for it to be available within the cluster.
+Now, if we remove the deployment from our cluster again, then we can look at for profiles indeed. So we got a profile for each replica.
+So, they may differ, because different load balancers, May reach, different replicas of deployment.
+But we are now able to actually assemble our seccomp professed by just giving them and looking at our clothes.
+So this is our main strategy, how to create seccomp of as for actual
+Real-life workloads.
+And this was my demo for recording seccomp profiles with the help of the security profiles. Operator, what do we plan for the future of the project?
+Well, there are many things planned but the few of them are just here.
+So the first thing we would like to do is we would like to introduce a notes that was for profile reconciliation, to avoid data races. So we are working on a fully transparent node status that determine if a profile has been reconciled to this gone up. So this helps us to avoid data races and make them all over or imply.
+Imitation more robust, especially for large lip scale.
+Deployments further, we would like to simplify the deployment in favor of automaticity. So the web deployment should be part of a single all-in-one deployment file. We would like to add custom deployment allergic, to keep the rollout of the operator and sink.
+Littering to remove in your cert, manage manage a dependency completely. We would like to work on audit logs for Cisco recording.
+So we already have to look fat in Richmond and Rich implemented for the operator. And this is able to collect on messages directly and we also plan to enhance this log enrichment mechanism to be able to record profiles, directly from this data.
+We would also like to add full-featured say Linux and mo support.
+support. So right now the security profiles operator is targeting to also enable say leanix policies to and up almost report. Will come in the future releases as well.
+And the last point but not least one is metrics.
+Our plan is to provide a metrics and point for the operator to explore security related information to Prometheus.
+This gives cluster operators more details about the actual security policies and what is going on in that luster.
+luster. So we would like to love this EU contribution, if you're interested. And if you want to get started working with any of those topics and with that, I would like to thank you all for listening this talk.

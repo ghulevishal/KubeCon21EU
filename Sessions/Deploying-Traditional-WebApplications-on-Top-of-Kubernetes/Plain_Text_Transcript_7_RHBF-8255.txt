@@ -1,0 +1,216 @@
+﻿﻿Lessons Learned Deploying Traditional Web Applications on Top of Kubernetes - Marcos Bjoerkelund, VMware: RHBF-8255 - events@cncf.io
+
+Participant: wordly [W] English (US)
+
+Hi, welcome to all of you.
+I'm Marcus björklund.
+I'm based in Spain and I work at VMware which I joined via that accusation of Vietnam e in 2019.
+Today I'm going to talk about some of the lessons we have learned.
+up in Nami while deploying traditional web applications on top of kubernetes.
+This talk is structure in the five parts.
+First, we will have a weave introduction.
+Next, we will talk about some of the different steps you will follow. If you want to deploy a traditional web application, on top of kubernetes afterwards, we'll get some tips and good practices in this course of the, some packed particular challenges, you may find in the
+With an example.
+At the end, I will be here to answer any questions you may have.
+First, I wanted to talk a bit more about my company with nami, which is not part of VMware is a catalog for web applications runtimes Frameworks and more that can be deployed in multiple environments platforms and formats such as continue images or
+Chart.
+We have more than 10 years of experience deploying web applications on this environments.
+In fact, our catalog contains almost 100 traditional web applications. More of 20 of them can be deployed in kubernetes Via an charts.
+Let's talk a bit about traditional web applications.
+There are so many of them.
+Incredible popular ones, less popular ones, Etc.
+These are just a small portion of the ones that we supported Minami in one of those platforms. You will easily recognize more than one logo.
+They are not designed to work in cloudnativecon tents the date to before that with this anything.
+So how can we differentiate traditional and cloudnativecon Cajuns? I have compiled a few basic requirements that we will expect any kubernetes, native apps to meet so they can be deployed without any headache.
+Two additional applications.
+However, don't usually meet one or more of these requiring workarounds and hacks.
+some cases, it may even be impossible to solve these problems. Let's talk about them.
+First the applications process, maybe stateful share resources between them.
+Next, there may be no, separation between application code data and configurations, natal in, to specify the plumbing, the inputs without relying on configuration files. Stored in the local disk,
+the application may not be ready to be stopped at any point of time or require some time to boot up.
+This usually happens a lot in job applications such as Jenkins.
+The application may not support or insult on scaling due to the sign limitations. Usually this happens when it relies on the local disk for storing data,
+Finally, tap should specify an exact list or dependencies. That is, it has been testing working with and in ideally, with a standard way to install them. For example, with the package manager, such as npn to avoid any issues, when running the application,
+We have also created a guitar Chris prostrate for this. Talk to complement with examples and more detailed explanations this on github.com /.
+/, enamel Ox, / deploy, web apps and kubernetes. You don't need to copy the link right now, as we will, be referencing it throughout different parts of this talk.
+Now, let's briefly revisit how you would proceed if, if you wanted to deploy a traditional web application on top of kubernetes.
+Here you can see a list of basic steps you would need to follow. If you want to deploy it, you will need to First build the container image, build a ham chart,
+And then deploy and operate on kubernetes.
+For this talk, we will be mostly focusing on the building process for a given container images and charts at tigera. The base, step running up an application or kubernetes.
+start with the building of container images.
+When we talk about continuing edges, we will fare in the oci compliant images.
+This can be run on Docker Postman or kubernetes. For instance. A particular thing about continue images is that you can run code at two stages at build time. And at runtime
+First, you can work out. When you build image via the dockerfile, it includes a series of steps to Define your image, which in this case means you can build and run the application.
+It is based on layers, each command in the dockerfile executed. On top of the previous layer you can specify inputs be the but they will only be used when building the image in the example, on the right.
+You can see how an example dockerfile would look like and how we would deploy. It it's format is really simple.
+The runtime is specified by an entry point script.
+Here, you will run scripts to install and run your application. You can specify external input via environment variables or mounted files.
+Let's talk a bit but dockerfile design.
+design. It should contain all the steps to install the application. Them dependencies copy application files, and prepare it so it can run as well as making it secure. Now, it is heavily recommended that you also optimized image size.
+And also ensure that installation can be before affirmed, which has much stability as possible.
+You would also classify runtimes configuration defaults, such as the default entry point, default values, for inputs, Etc.
+Now, about entervan design.
+Ideally, it should contain steps to validate inputs.
+Persisted application data. Start the web application itself with the focus and thinking the levels amount of time to deploy.
+Then other things that will be nice to have, like, logic to configure the application free external inputs waiting for external services to be available.
+So the application doesn't throw any error or other post-installation features for instance to automate installation in the database.
+Next, let's talk about 10 charts.
+Helm is known as the package manager. For kubernetes is the most popular way to the play web applications. On top of it, ahem chart contains a collection of kubernetes research templates that can be extended via impulse during deployments.
+It supports complex architectures.
+Yes up charts in a data chart can include another chart.
+To the right.
+You can see a next basic file structure of a hand chart and Below. You will see the steps to the deploy it into kubernetes.
+About how much our designs there are so many things that you might want to support.
+Some things you will mostly always include for utilization, webassembly tations.
+For instance, deployment for application. Containers, Ingress with TLS word, persistent volume, claims to store your application data or secret storage credentials.
+Are the things you should consider supporting, will be supporting the database in a soup chart, we're using an external database for it.
+metrics Grand jobs, customer resources, Etc.
+Finally, let's talk a bit about Bill and release Pipelines.
+Why would we want a release pipeline?
+Well it will allow you to perform tedious manual steps in an automated way to contain the steps to build. Both the continue image and him charts plus. The automated testing releasing or publishing of both of them.
+one of my work colleagues presented last year, in kubecon talking about the internal with nami build and release pipeline,
+If you're interested in the topic, feel free to check it out. It's on YouTube.
+Finally, I also wanted to mention that there are few Alternatives if you want to implement your own CI, Ci or CD pipeline.
+All of the examples is listed here. Have a free tier if I'm not wrong.
+And there are also open source Alternatives like Jenkins which we used a bit Nami.
+Now, let's talk about some tips and good practices when building container images and ham charges.
+First you should consider running containers as non-root users. This is because it allows to protect from pivot privilege, escalations and access to non-routable files.
+For instance, if a malicious user gained access to your application file system, it will greatly limit the start, they could do to make it behave in an undesirable way.
+There are different Alternatives you can follow running unknown system user or an existing user with an arbitrary user ID.
+Or an arbitrary user ID and an unknown user name.
+The problem with the first two is that are either insecure, but they are not supported in all platforms.
+And then don't do not follow the best security practices and recommendations.
+For these reasons we have recommend compounding containers with an arbitrary user ID and Known Unknown user name. It might not be incompatible with our laps with it.
+You can work around this with NSS rapper and other side effect of having no username is that the shell prompt may look a bit ugly.
+This doesn't mean it is broken in K. In this case?
+Any writable file must belong to the root group because any username that has no name belongs to the root Group by default.
+Now, let's continue talking about permissions.
+It is important to sit set this. At build time as non-root images.
+May not only lack the privilege to change them at runtime but also because it may be slow at buildpacks we have the all the time of the world to do so.
+So what files should we make credible?
+When any file that the application requires to modify at runtime? If there is a clear separation between application code and data, then only data fields, will need to be writable.
+You will need to identify the list of files and folders that are writable when you create the image.
+It might be the application requires access to the entire search directory.
+In case, you will need to make all files writable finally. I recommend to check the docker security cheat sheet from the owasp foundation.
+It contains some good security topics that you should review when creating your content images. The most relevant one will be with respect to read only file systems.
+If you want to support that, you need to identify list the list of application files and folders that need to be writable.
+Like mentioned above in create, an appropriate volume for those.
+Then populate the volumes at runtime if applicable.
+next, there is other topics like using Linux security models such as RPP, armor seccomp, selinux
+Another important factor when creating your continued image is the image size.
+So we know that container images follow a layered format.
+This acid good things.
+But one of the things that are going wrong comes, when we modify a file in different layers, it gets counted twice, even change the file mode or ownership will have this effect.
+And why would you want to fix this?
+It is important because it will affect bandwidth usage in deployment time.
+If the image is not stored locally, it will need to be downloaded.
+So, we can be talking about several give several gigabytes of data transfer here.
+There are some strategies, you can follow to easily achieve an optimal image size first by using multi-state images to build your application.
+This is especially useful for applications that in need. Further steps to be built with a specific build dependencies.
+The next options consists of strategically implementing your dockerfile grouping and the actions that may modify a file more than once we move in temporary files Etc and all in a specific order.
+This may lead to darker files that are hard to read.
+The final thing is you consider if the previous two are not possible for your case is to use Dockers squash feature? It is some sort of nuclear option at least has some important limitations but is up to you to consider if there is no other way.
+I also wanted to talk about the useful tool called Dive this tool allows to inspect images, for big files. So you can check where to start optimizing the image size.
+You can see this example of a WordPress image which is more than one and a half gigabyte in size. When we were out when we optimized it we were able to take it down to less than the half of the size.
+a lot of space that the user saves but also in-toto
+Deployment time, as it does not need to be downloaded.
+Now let's talk about some good practices, creating container images. We have collected the guide on some of the best practices you should follow when writing a doc file. Find a link to it in this page.
+The main recommendation consists of running, only one process per container. We will discuss different ways to work around this problem later.
+a build time you would ideally run heavy and time-consuming tasks, to bootstrap the application in the very tops as one time
+You should also be aware of an impossible possible reproducibility issues when building the image, for instance, network connectivity issues.
+As for maintenance, it is highly recommended to rebuild the image periodically.
+This could allow you to minimize the response time in case of a security incident, affecting a dependency of your application or even by detecting a potential build errors before I rebuild becomes urgent.
+Mistake. We made I've been named in the past consists of are using an external tool to initialize the application data. So did this had some issues with respect to visibility and debug but the main issue was
+The in some environment.
+It had such a huge memory impact that it will cause issues when H initialising in kubernetes theatre setting resource limits.
+Are the things you should consider. At this stage will be to support for multi Ark such as AMD 64 plus, AR m,
+Or choosing your own Destroyer among other things.
+As for charts design.
+As, for charts, design, I've linked here, a guide on some of the best practices. Creating hand charts ready for production, finals were linked to the public hem chart template. We're using our binami when we add any new solution.
+I would mainly recommend that you configure it to deploy non-root containers by default. Now operators to extend this to they will
+Find some examples here, for instance, by allowing them to specify custom containerd commands or little probes.
+Integrate with login and monitoring platforms, such as e, LK or Prometheus.
+At the Diagnostics features to make it easier to debug problems in deployment, in case anything happens.
+Now, let's discuss some of the challenges you may find and how to solve them.
+If you want to, if you want your application to work properly in kubernetes, you need to ensure that persistence is properly set up. If not, you may lose data after the container gets recreated as a general rule, you should only persist data
+Allison folders that need to be writable by the application at runtime.
+The application separate State and code. In this case it could make our task easier. We were be aware that there are many applications that don't do it.
+This approach is faster when you do the first initialization because it needs to copy less files.
+Just imagine if you had to copy an entire multi-gigabyte, application via the network to a different volume.
+Last point, the favor in this is that it makes it easier to upgrade application by just swapping the container images.
+If the application doesn't have any code and data separation, then you will need to persist the entire application source code. This can be slower than the previous approach. Think of the example, we mentioned
+the other downside of this approach is that it forces the operator to deal with any sort of Maintenance and upgrade tasks.
+Which approach issues is up to you.
+You should consider the pros and cons of each one of those.
+Now, let's talk about support for automatic updates, we understand automatic updates as the process where the operator does not need to manually.
+run any upgrade command or wizard to our great application.
+Not that. Before you make any upgrade, it is essential that you backup, your database and scale down to one node if the application is running through multiple nodes.
+It application separates code and data, like mentioned above.
+It makes it easier for the greater dark grade by just swapping the continue image version.
+In other way, this can be implemented is if the container is if the application itself supports some sort of automatic upgrade process like WordPress where the operator doesn't even need to worry about clicking on the upgrade button at application dossett.
+So does it automatically.
+The problem with this method is that it requires the application itself to have to have write privileges to modify the application stores files.
+This is not ideal with respect to permissions, it also makes it more complicated to world back in case any error occurs.
+If the application does not provide any of those features that is code and data separation or an automated UI updates tool, then the operator will be forced to perform a manual accurate process on
+Own.
+Another issue you may find is that your application requires multiple services to work. But when the general rule is not running more than one process in the container, then what do you do?
+Well, there are two main problems. We have any identified related to this.
+First, when the application has a set of external dependencies or services that need to share data with the main component or process.
+Like for instance, we are the use of workers in this case, each check, if it allows to do that with an external service.
+Like readies, if not, you can set up a synchronized or catched file system, such as NFS with the downside of a notable right performance.
+The next problem comes with respect to front-end and back-end servers requiring access to the same application files. In this case, it should check. If there is any way to host external resources via a CDN,
+If not, you can also rely on shared or catch five systems. Like we mentioned above with a notable impact on performance.
+In this case, you can also use a catch server like varnish for catching front and resources to help in the performance drop.
+other cases, you might find could be private periodic jobs,
+In this case, kubernetes offers a Cron job resource definition that you can use to work around these issues or you may want to execute some pre-installation steps apart from what is in the container logic? In this case, you can use an in this container.
+The last challenge we will talk about is horizontal scaling.
+Ideally your application will fully rely on external services and host. No local data whatsoever making it easier to scale. Horizontally, for example, you will have a web server to host application data, a different hosting,
+Different server for hosting temporary files.
+Such as catch sessions, Etc.
+Usual, don't be a Reddy's men.
+catched in other types of servers. Then you would have a CDN for hosting. The application has its user uploads amongst others.
+And then external load balancer at the main entry point from users to access the application itself.
+In reality the additional applications require hosting local data, like we have mentioned before and to solution to that may be using a synchronized file system. Even with that the application may not support it due to extra limitations.
+In this case, all you can do is optimize it.
+For instance you can use the catch serverless, varnished with the load from the application Services optimized application configuration to your needs or even scale vertically.
+It.
+Now that we have seen all the different steps involving in the point application in government is including how to build a good container image and a good hand chart. Let's see, a real world example, we are going to describe how to deploy a very popular application. In
+Is WordPress and kubernetes following several in some of the best tips and practices mentioned in this talk.
+First. Let's see.
+apple where component diagram would look like. In this case, the user will connect to the HTTP Port of an nginx container.
+Which will then communicate any request to PHP, fpm, the haproxy and using the María DB container as a database.
+The only containerd, we will focus on for this talk would be the one that executes the WordPress application.
+In this case, the PHP fpm container.
+This is an example of a real Docker file that could be used to build and run the WordPress application.
+Don't be scared.
+We will we will be describing it step by step.
+You can see here that we are using a multi-stage built, in this case to build the application in a separate container and save space in the overall image size. We are using the same image as big as the runtime
+Well.
+We are installing build appendices in this case. For the CEO RL command.
+Extracting, the application.
+And adding any customizations on top of it.
+Next, we are defining the new image, the final image using a minimum container image with the minimal size.
+We are adapting it to our needs.
+Installing runtimes dependencies, finally installing WordPress from the multistage build, applying any runtime configurations for assisting, the wp-content at the data folder
+WordPress.
+And running everything is an unworthy user.
+This container is using a entry point script, that we are describing here in the same way.
+We will describing it by step by step. I'll be like me for
+First, we are setting bash, strict mode, and log functions which is a good practice.
+Next, we are determining, if the Apple application is being initialized, if it is, then we will persist application data files.
+This is only on the first one.
+It maybe take a bit more time than the usual, but in successive successive rounds you shouldn't do much.
+It should be almost instantaneous.
+Another step that we do in the first initialization is validating inputs running custom commands Etc.
+Finally, we started application.
+That's it.
+That's, that's basically a container image.
+now, for the chart,
+Now that we have a Continuum image, we want to deploy it on kubernetes.
+The chart includes a lots of files so we will not be describing into detail because we lack the time right now, but we have collected two examples.
+One of those is to be done with WordPress chart which is the losses in Apache, plus mode PHP approach. Some basic features is that it uses mariadb sub chart as the database, but also allows to specify an external database
+It also supports catching via our WordPress plugin blossoming. Catch it.
+we have also created for this talk specifically and nginx + PHP, fpm example,
+Basing on the binami WordPress chart, refer to the link to the GitHub repository for this talk and check it out.
+So thanks so much for attending.
+I really hope you enjoyed this session.

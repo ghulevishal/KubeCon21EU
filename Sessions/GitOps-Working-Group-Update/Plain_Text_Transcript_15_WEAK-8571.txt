@@ -1,0 +1,135 @@
+﻿﻿GitOps Working Group Update - Cornelia Davis, Weaveworks & Chris Sanders, Microsoft: WEAK-8571 - events@cncf.io
+
+Participant: wordly [W] English (US)
+
+Hello, and welcome to this. Gitops working group update. If you don't know what the gitops working group is, don't worry. By the end of this session, you will, my name is Cornell, you Davis.
+the CTO at weaveworks and I'm joined by my colleague. Hi, I'm Chris Sanders. And I'm a program manager working on Azure Arc
+Excellent.
+And Chris and I have been working together on both the formation of the gitops working group and the gitops working group itself.
+So we'll tell you a more about that.
+So before we jump into the details of the gitops working group, I thought it would be good idea to for us to just talk about what is gitops and with that, for those of you who know me, I'm always drawing animations.
+So what I want to talk about here is you can imagine what the word like gitops there's an operational element. So what we're talking about here is we're talking about operating something in some runtimes environment.
+And here on the slide as kubernetes.
+Now, you'll notice there, there's the remark that said, kubernetes is just one example of a runtime environment, gitops is not restricted to only kubernetes, you can gitops things that are in your infrastructure.
+So you can be doing a variety of different infrastructure things on Azure, for example, or you could be doing gitops thing from your ldap system or something like that.
+There could be a number of different runtime environments. But we're using kubernetes here just as an example.
+Are now, the next element is that we've got a number of individuals who are operating that runtimes environment.
+they're operating the infrastructure, the applications running on that the roles and receiving of the roles, you know, role-based access control, all of those types of things.
+And what we're talking about with gitops gets to, how do they do that? How do they operate those things in the runtime environment?
+And as you can imagine, because there's some white space there, there's something coming. Well, this is where the
+Get part comes in now, get is not the only thing that you use for this part of the equation. But it is the most prevalent thing that we do in gitops and what we're doing, there is the with gitops those
+School responsible for running those applications and running the infrastructure in that runtimes environment they do.
+So by recording, the desired state of that infrastructure in a system like get and we'll talk a little bit more about what the characteristics are of that system like get and
+Using an interface to that system to that get system have the interface for operations.
+It's not that they're doing operations elsewhere and then coming back to get to record things, it's that they are using that interface in to get as the interface for operations.
+So that is is really, really critical. Now, when they do commit things in to get using PRS or whatever, the case may be, and then approvals, there is some automation that has to happen.
+Open to make that.
+So in the runtime environment and the second really important element of gitops is that that automation needs to be special.
+It needs to be convergent. And now, you can see why I started with kubernetes because kubernetes is by its very nature convergent system. So we're kind of capitalizing on that.
+So gitops is using an interface into a version of beautiful store like get and then using
+Convergent automation to make it so in the runtime environment.
+Now there's one final element which is these dates modern operations is all about feedback loops. If there is any reason that something has changed in the runtime environment, we also want to automate that loop back in to the
+And immutable store that has the desired state.
+So if we had to do some kind of quick, fix in the runtime environment, we want to automate that feedback back into the git repository as well.
+So that's kind of a quick overview of gitops with that.
+I'd like to hand it over to my colleague.
+Chris to tell you more about the gitops working group history, what we're doing in those types of things.
+So Chris, take it away, laughs, lipslides for you.
+Cool.
+Thanks Cornelius.
+Oh yeah.
+Give you a nice quick overview to what get-ups is and some of the importance of it and she's going to talk some more about it later on too.
+But what I'd like to talk about now is the gitops working group, this working group was formed last. November it was announced, there was several companies who are initiators here, including a code fresh and Amazon and
+Weaveworks and Microsoft, who initiated this working group. But as you'll find out, this is a working group that is open to to all next.
+So the goal of this working group is to provide companies and individual individuals. And, you know, you folks who are watching with the knowledge, the skills and the competency to be able to implement gitops using tooling and methodologies with
+We'll find your operation and management of the infrastructure and cloudnativecon plication.
+So you can see here that one of the core reasons for the working group is to help.
+educate, you educate companies, educate individuals. On the principles of gitops, how do you effectively use gitops?
+And also, if you're making tooling, or you're using tooling, how to create a gitops ecosystem, where interoperability is a given next.
+Yep, and I'll just really quickly. Before I Advance the slide re-emphasize two words on the screen here.
+I already said it, Chris is going to say it repeatedly, which is gitops, doesn't just apply to infrastructure. It doesn't just apply to Applications with it. Applies to everything, anything that you need to operate in a runtime environment. You can apply gitops to
+Cool.
+So where does this new working group Live?
+Well, an obvious obvious place for it to live is to collect cloudnativecon peut-être foundation and that Foundation has a mission to make cloudnativecon putan.
+Ubiquitous. So this is where the working group lives and in the next slide.
+You'll see the next step down of where it lives, which is in the app delivery special interest group within the cncf, the application delivery Sig focuses on delivery. And cloudnativecon plication 's X involve multiple phases including building deploying managing
+It in. So it gitops working group really fits well, into this special interest group next.
+So you can see this great icon. We have for the get-ups working group and the focus of the get out. Loodse working group is again to clearly defined a very Avenger neutral and
+Meaning of gitops so that it's a very open type of process that we're using open tooling system and the get-ups working group will help Define and establish a foundation for the interoperability again, between tooling.
+From from various vendors conformance of systems with with gitops and also certification of practitioners of gitops as well.
+We've met several times over the past several months and out of that, several co-chairs were elected, the initial co-chairs, and they include Dan Garfield of code. Fresh, Leo, Amarillo of cloudnativecon context and
+Rigby of weaveworks.
+So what is the this working group doing right now?
+Well, so far as you're going to see, as you're watching this on Thursday of kubecon in the zero day, there was a gitops con that some of you may have gone to an all-day event where we focused on gitops a second area is that we're really
+Hard right now, to establish the principles of gitops and to make a statement. There folks are reviewing the initial statement of principles.
+We're having discussions on that and and you're welcome to join into the discussion as well as we come up with sort of a living document of what gitops principles are hopefully to Define and set the Baseline for understanding gitops.
+Eventually there will be a very rich website that will include things like Sam.
+Apples. And you can see an example here of Pato head for cloud, cloud, native application delivery in various forms.
+The goal here is to have a site where you can go. And you can see various reference implementations of how you would do gitops in various situations. So it's a very pluggable playable system in the future,
+At things like gitops lenses cape and I'm going to let you talk about this Colonel. You, can you stuck this in here? And I don't know exactly what you mean and also certifications for for gitops but go ahead.
+Yes of what we have in mind with the gitops landscape, is that there are several elements. Even in the intro that I gave at the beginning of the presentation, you saw that, there were several elements.
+There were elements around this version de meetable store that I was talking about.
+There's also this element around Automation and this element around targets and then there's even within the automation category, there's a number of different ways that you might categorize.
+its automation. That is specifically for infrastructure specifically for
+He's and so if you think about operations cloudnativecon bration, so you really can think of gitops is cloudnativecon /. Ations.
+So, when we talk about a gitops landscape, we're talking about, well, there's so many things that are involved in cloudnativecon operations, how do we start to break that down and categorize it so that we can then take things like tools and put them in categories?
+if you think of the cncf landscape as this really broad landscape. Now you can think of something like climate of operations as a smaller lenses.
+Escape. But within that, there are still some complexity so kind of introduces a tekton Ami
+okay, next
+So, you know, out of the cloudnativecon group, there's gone out of the gitops working group, there's going to come, some permanent artifacts that are going to be things like programs and documents and code that are going to live for you to
+And so in order to help find a place for those two to live, we've created the open gitops project within cncf.
+It's currently a cncf Sandbox project and this will be a place where where the artifacts will be stored next.
+So in summary, we have the gitops working group and you'll hear a call for Action soon that you all should join up for this and that gitops working group out of the discussions that happened. There it will create and care for this open gitops project.
+I think it's back to you.
+And people aren't our super thank you. And so, one of the things, the very first thing we talked about it, we referred to it as gitops principles or gitops definition. The principles are actually only part of the definition there.
+ER, and so when Chris was mentioning that we invite you to participate with us on the definition of what gitops is and the expression of these principles, and I'm going to go over those principles in just a moment right now, those exist in the pr.
+So I'll come back to that slide at the end that shows you the git repository where the gitops working group is doing its work.
+And right now, there's a PR against that repository, that captures, that gitops definition. We're capturing it in three different places, one,
+There's a glossary and that glossary talks about things like the desired State, the state store reconciliation.
+So those are terms that you already hurt us use throughout this presentation.
+We also have a document that talks about the rationale.
+So what is good at gitops good for you?
+You hear us sometimes, talking about, well, it's great for auditability.
+So those are the types of things that were expressing in the rationale and then the most significant piece in that definition is the principles, are the principles that
+So, and so today, as we record, this just a couple of weeks before coupon and right around the time that Kook on runs these principles, I think are going to be pretty stable in that time, but they are still under development.
+Present to you. What the principles are looking like right now in the discussion in that gitops working group. It starts out with principle number one in principle. Number one says that we it's the principle of declarative state.
+This, if you will, for those of you who are familiar with kubernetes, it's funny that I should say that, right?
+This is coupon, most of you probably are, is that the way that you configure your kubernetes systems?
+You can figure it not through a bunch of rest, apis, and imperative calls, but you can figure it by expressing what you want in a yam will document.
+So that desired state is expressed declaratively.
+So that's principle. Number one. Principle number two is that that desired state
+That's declaratively.
+Expressed is stored in a way that supports versioning immutable immutability of those versions and retains that version history.
+So I hinted earlier that it didn't have to be get but there are certain semantics that we depend on for gitops.
+So, for example, that last part that says retains a complete version history, well, it's that version history that enables you to have an audit trail of who did what?
+And what changes happened in your runtimes, environment based on what actions happened in were captured in the get system immutability.
+That's really important because one of the, one of the benefits of gitops that we talked about, is that you can roll back that you can easily recover the state of a system.
+There you have, moved forward, a version and some unanticipated problem showed its reared, its ugly head way too late.
+Now we need to pull back. We want to roll back to the previous version or I've had some kind of a disaster and I need to quickly stand up my system in a different region.
+For example, being able to do that, we have to have that immutability and that complete version history.
+So you can see that these principles are very specifically crafted to support some of these benefits that we
+We realize from gitops principle number three.
+Gets to that automation piece that I showed you in the earlier slide which it says, well, when you have stored this desired state, which you've expressed declaratively and you've stored it appropriately in the right kind of store, and there's going to be
+After agents at respond to that.
+Now, you could imagine that we're just sending out web Hooks and running some bash script somewhere. That's not gitops.
+What we are saying here is in order to take advantage of that declarative State. We're saying that the automation has to be that convergent system. That reconciliation based system that I talked about earlier.
+So those are those software agents. Now I've put a couple of icons up here to show you that those software agents fall into a couple of different.
+Different categories.
+You see? For example, there's a flux logo. That's the the far left one. And then there's the Argo CD logo, which is a little octopus there.
+those are both reconcile errs that deal with delivering things from the git repository over into the kubernetes environment. Those are all reconciliation based then kubernetes itself has all sorts of reconcile errs like your deployment
+Replica set controller and then the little stack Turtles there. If you're not familiar with those, that's the logo for cluster API. So cluster API is a Reconciliation based way of managing your kubernetes clusters themselves.
+So that means you can declare your desired cluster State, not workloads, the cluster State, and you can have a, you can have something like flux or Argo deliver that and then you've got these reconciler zat will make it so and stand up and
+Take care of the kubernetes Clusters that you want. So that's principle. Number three, is this special nature of these software agents?
+And then, finally printable for says, this is the only way that you're going to operate your system, you are not going to go in through the back door.
+Now, there are, of course, exceptions you sometimes, you're going to have to go through the back door and you saw the feedback loop that said, well, if you go in through the back door, if you essentially SSH into a kublr, apply that will record
+That back into the get system, but the normal mode of operation is for operations to happen via these mechanisms and then the software agents make it.
+So, those are the four principles that you can find currently in that poll request. If you want to participate in that, we very, very much, welcome, your opinions, and your feedback in that poll request. So, please come there,
+The whole point here is that it's really about this convergent system and there is continuous delivery and continuous operations. So we sometimes like to say gitops does not equal CD, it equals c, d, plus Co so that's
+Sure. Showing finally, I want to reiterate Chris's invitation from earlier, please join us.
+I've mentioned that the gitops principles is a PR, their the repository.
+I've put it there in a larger font as well.
+So the repo there is in GitHub. It's gitops - working - group, and that's the organization. And then we've got a number of repositories under there.
+The kind of home for the working group is there. We also meet synchronously
+The second Thursday of every month at 1800 hours GMT that occasionally moves.
+So keep an eye on the cncf calendar when it does move because of holidays. Or those types of things. We do update the cncf calendar, you can find all of the details, really, the only URL that you need to remember, is that gitops working group and you can find everything else there.
+Take you to documents and press releases. And all of that kind of stuff with that Chris. And I thank you for your attention. We hope that you enjoy the rest of your coupon and we hope to see you soon in the get-ups working group.
