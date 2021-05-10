@@ -1,0 +1,3 @@
+Autoscaling is a powerful technique to improve reliability and save costs. However, configuration of node autoscaling systems is a complex art. Karpenter is an open source, vendor neutral project that enables node autoscaling without the need for configuration and discovery for node groups in any cloud provider. With direct provider integration and out-of-the-box support for common node parameters like architecture, operating systems etc., taints, and labels, Karpenter gets users up and running quickly, while extending cleanly to more complex use cases.
+
+In this session, we'll explore the history of autoscaling and our latest approach to low latency node autoscaling.
